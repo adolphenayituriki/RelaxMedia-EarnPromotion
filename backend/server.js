@@ -34,7 +34,10 @@ const swaggerSpec = swaggerJsdoc({
       version: '1.0.0',
       description: 'REST API for the YouTube Watch Time Tracker & Earning Platform',
     },
-    servers: [{ url: `http://localhost:${PORT}` }],
+    servers: [
+      { url: `http://localhost:${PORT}`, description: 'Development server' },
+      { url: 'https://relaxmedia-earnpromotion.onrender.com', description: 'Production server' },
+    ],
   },
   apis: ['./routes/*.js'],
 })
