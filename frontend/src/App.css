@@ -1037,10 +1037,10 @@ header p {
   width: 60px;
   height: 60px;
   border: 4px solid transparent;
-  border-top-color: #ff1744;
-  border-right-color: #ffea00;
-  border-bottom-color: #00e676;
-  border-left-color: #2979ff;
+  border-top-color: #00a1de;
+  border-right-color: #e5be01;
+  border-bottom-color: #00a64e;
+  border-left-color: #00a1de;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -1054,10 +1054,10 @@ header p {
   width: 18px;
   height: 18px;
   border: 3px solid transparent;
-  border-top-color: #ff1744;
-  border-right-color: #ffea00;
-  border-bottom-color: #00e676;
-  border-left-color: #2979ff;
+  border-top-color: #00a1de;
+  border-right-color: #e5be01;
+  border-bottom-color: #00a64e;
+  border-left-color: #00a1de;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   vertical-align: middle;
