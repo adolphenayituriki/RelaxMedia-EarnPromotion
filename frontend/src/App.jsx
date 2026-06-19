@@ -202,7 +202,7 @@ export default function App() {
       <header>
         <div className="header-top">
           <div>
-            <h1>RELAX MEDIA EARN PROMOTION / From youtube</h1>
+            <h1><span className="loader-ring-inline" /> RELAX MEDIA EARN PROMOTION / From youtube</h1>
             <p>Watch time is only counted during normal playback. Skipping / scrubbing forward pauses counting.</p>
           </div>
           <div className="user-info">
