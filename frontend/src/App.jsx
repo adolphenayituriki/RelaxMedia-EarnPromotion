@@ -249,6 +249,7 @@ export default function App() {
             onWithdraw={() => setShowWithdraw(true)}
             user={user}
             earned={earned}
+            withdrawInfo={withdrawInfo}
           />
           <PlaylistSidebar
             videos={hook.playlistVideos}

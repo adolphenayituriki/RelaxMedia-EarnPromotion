@@ -1,9 +1,10 @@
+import { useState } from 'react'
+
 const TIERS = [
   { minHours: 0, rate: 65, label: 'Starter' },
   { minHours: 5, rate: 80, label: 'Bronze' },
   { minHours: 12, rate: 100, label: 'Silver' },
 ]
-const MAX_TIER = TIERS[TIERS.length - 1]
 
 function getTier(hours) {
   let t = TIERS[0]
@@ -26,13 +27,20 @@ function fmtHours(s) {
   return `${m}m`
 }
 
-export default function StatsPanel({ duration, totalWatched, totalSkipped, skipCount, status, isPlaylist, currentVideo, playlistLength, onShowPromo, onWithdraw, user, earned }) {
+function statusLabel(s) {
+  if (s === 'processed') return 'Approved'
+  if (s === 'failed') return 'Rejected'
+  return 'Pending'
+}
+
+export default function StatsPanel({ duration, totalWatched, totalSkipped, skipCount, status, isPlaylist, currentVideo, playlistLength, onShowPromo, onWithdraw, user, earned, withdrawInfo }) {
   const dur = duration || 1
   const watchedHours = totalWatched / 3600
   const tier = getTier(watchedHours)
   const watchedPct = Math.min((totalWatched / dur) * 100, 100)
   const skippedPct = Math.min((totalSkipped / dur) * 100, 100)
   const nextTier = TIERS.find(t => t.minHours > tier.minHours)
+  const [historyOpen, setHistoryOpen] = useState(false)
 
   return (
     <div className="stats-section">
@@ -52,6 +60,49 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
           </span>
         )}
       </div>
+
+      {user && withdrawInfo && (
+        <div className="withdraw-summary">
+          <div className="withdraw-summary-row">
+            <span>Total earned:</span>
+            <span>{withdrawInfo.earned.toFixed(2)} RFW</span>
+          </div>
+          <div className="withdraw-summary-row">
+            <span>Withdrawn:</span>
+            <span>{withdrawInfo.totalWithdrawn.toFixed(2)} RFW</span>
+          </div>
+          <div className="withdraw-summary-row withdraw-summary-avail">
+            <span>Available:</span>
+            <span>{withdrawInfo.available.toFixed(2)} RFW</span>
+          </div>
+        </div>
+      )}
+
+      {user && withdrawInfo?.history?.length > 0 && (
+        <div className="withdraw-history">
+          <button className="withdraw-history-toggle" onClick={() => setHistoryOpen(!historyOpen)}>
+            Withdraw History ({withdrawInfo.history.length}) {historyOpen ? '▲' : '▼'}
+          </button>
+          {historyOpen && (
+            <div className="withdraw-history-list">
+              {withdrawInfo.history.map(w => (
+                <div key={w._id} className={`withdraw-history-item status-${w.status}`}>
+                  <div className="wh-row">
+                    <span className="wh-amount">{w.amount} RFW</span>
+                    <span className={`wh-status admin-status-${w.status}`}>{statusLabel(w.status)}</span>
+                  </div>
+                  <div className="wh-row wh-sub">
+                    <span>Fee: -{w.fee} RFW</span>
+                    <span>Net: {w.netAmount} RFW</span>
+                  </div>
+                  {w.phone && <div className="wh-row wh-sub">Phone: {w.phone} | {w.fullName}</div>}
+                  <div className="wh-row wh-date">{new Date(w.createdAt).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {isPlaylist && (
         <>
