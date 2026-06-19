@@ -264,8 +264,8 @@ Sign in with the admin email/password (configured via `ADMIN_EMAIL` / `ADMIN_PAS
 |----------|----------|---------|-------------|
 | `PORT` | No | `3001` | Backend server port |
 | `MONGO_URI` | Yes (prod) | `mongodb://localhost:27017/...` | MongoDB connection string |
-| `ADMIN_EMAIL` | No | `www.nayituriki.com@gmail.com` | Admin login email |
-| `ADMIN_PASSWORD` | No | `Adolphe@078` | Admin login password |
+| `ADMIN_EMAIL` | No | *(set your own)* | Admin login email |
+| `ADMIN_PASSWORD` | No | *(set your own)* | Admin login password |
 | `OTP_EMAIL` | No | Falls back to `ADMIN_EMAIL` | Gmail address for sending OTPs |
 | `OTP_PASSWORD` | No | — | Gmail app password (if unset, codes print to console) |
 
@@ -323,12 +323,7 @@ youtube-app/
 
 ---
 
-## Admin Credentials
 
-- **Email:** configured via `ADMIN_EMAIL` env var (default: `www.nayituriki.com@gmail.com`)
-- **Password:** configured via `ADMIN_PASSWORD` env var (default: `Adolphe@078`)
-
----
 
 ## Live URLs
 
