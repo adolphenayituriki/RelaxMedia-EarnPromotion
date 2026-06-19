@@ -74,7 +74,18 @@ router.get('/users', async (req, res) => {
 router.get('/withdrawals', async (req, res) => {
   try {
     const withdrawals = await Withdraw.find().sort({ createdAt: -1 }).lean()
-    res.json(withdrawals)
+    const enriched = []
+    for (const w of withdrawals) {
+      const user = await User.findOne({ userId: w.userId }).lean()
+      const totalSeconds = user?.totalWatched || 0
+      const hours = totalSeconds / 3600
+      const tier = getTier(hours)
+      const earned = hours * tier.rate
+      const processed = await Withdraw.find({ userId: w.userId, status: 'processed' }).lean()
+      const totalWithdrawn = processed.reduce((s, r) => s + r.amount, 0)
+      enriched.push({ ...w, userEarned: earned, userTotalWithdrawn: totalWithdrawn, userAvailable: earned - totalWithdrawn })
+    }
+    res.json(enriched)
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

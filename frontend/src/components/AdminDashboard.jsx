@@ -107,6 +107,7 @@ export default function AdminDashboard({ user, onSignOut }) {
                 <th>Fee</th>
                 <th>Net</th>
                 <th>Status</th>
+                <th>User Info</th>
                 <th>Date</th>
                 <th>Action</th>
               </tr>
@@ -123,6 +124,11 @@ export default function AdminDashboard({ user, onSignOut }) {
                   <td>
                     <span className={`admin-status admin-status-${w.status}`}>{w.status}</span>
                   </td>
+                  <td className="admin-user-info-cell">
+                    <div>Earned: {w.userEarned?.toFixed(2) ?? '?'} RFW</div>
+                    <div>Withdrawn: {w.userTotalWithdrawn?.toFixed(2) ?? '?'} RFW</div>
+                    <div>Available: {w.userAvailable?.toFixed(2) ?? '?'} RFW</div>
+                  </td>
                   <td>{new Date(w.createdAt).toLocaleDateString()}</td>
                   <td>
                     {w.status === 'pending' && (
@@ -135,7 +141,7 @@ export default function AdminDashboard({ user, onSignOut }) {
                 </tr>
               ))}
               {withdrawals.length === 0 && (
-                <tr><td colSpan={9} className="admin-empty">No withdrawal requests</td></tr>
+                <tr><td colSpan={10} className="admin-empty">No withdrawal requests</td></tr>
               )}
             </tbody>
           </table>
