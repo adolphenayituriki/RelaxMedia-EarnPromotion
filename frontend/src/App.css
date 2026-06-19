@@ -844,6 +844,34 @@ header p {
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5);
 }
 
+.pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pw-wrap input {
+  flex: 1;
+  padding-right: 44px !important;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 4px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  line-height: 1;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.pw-toggle:hover {
+  opacity: 1;
+}
+
 .signin-modal-header {
   display: flex;
   justify-content: space-between;

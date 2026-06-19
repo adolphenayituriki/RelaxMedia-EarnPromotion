@@ -70,7 +70,7 @@ router.post('/signin', async (req, res) => {
         user.verificationCode = code
         user.verificationCodeExpires = new Date(Date.now() + 600000)
         await user.save()
-        await sendVerificationEmail(cleanEmail, code)
+        sendVerificationEmail(cleanEmail, code)
         return res.json({ verified: false, email: cleanEmail })
       }
       return res.json({ userId: user.userId, email: user.email, isAdmin: false })
@@ -85,7 +85,7 @@ router.post('/signin', async (req, res) => {
       verificationCode: code,
       verificationCodeExpires: new Date(Date.now() + 600000),
     })
-    await sendVerificationEmail(cleanEmail, code)
+    sendVerificationEmail(cleanEmail, code)
 
     res.json({ verified: false, email: cleanEmail })
   } catch (err) {
@@ -172,7 +172,7 @@ router.post('/resend-code', async (req, res) => {
     user.verificationCode = code
     user.verificationCodeExpires = new Date(Date.now() + 600000)
     await user.save()
-    await sendVerificationEmail(user.email, code)
+    sendVerificationEmail(user.email, code)
 
     res.json({ message: 'Verification code sent' })
   } catch (err) {

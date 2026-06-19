@@ -3,6 +3,7 @@ import { useState } from 'react'
 export default function SignIn({ onSignIn, loading, error, onClose }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -26,14 +27,19 @@ export default function SignIn({ onSignIn, loading, error, onClose }) {
             required
             disabled={loading}
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
+          <div className="pw-wrap">
+            <input
+              type={showPw ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <button type="button" className="pw-toggle" onClick={() => setShowPw(p => !p)} tabIndex={-1}>
+              {showPw ? '🙈' : '👁️'}
+            </button>
+          </div>
           <button type="submit" disabled={loading || !email.trim() || !password.trim()}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
