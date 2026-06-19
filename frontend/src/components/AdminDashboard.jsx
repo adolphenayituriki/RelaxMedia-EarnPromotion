@@ -147,6 +147,10 @@ export default function AdminDashboard({ user, onSignOut }) {
           </table>
         </div>
       )}
+
+      <footer className="app-footer">
+        Powered by RELAX MEDIA, 2026 Rwanda = Nayituriki Adolphe
+      </footer>
     </div>
   )
 }

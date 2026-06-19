@@ -289,6 +289,10 @@ export default function App() {
       {showPromo && (
         <Promotions totalWatched={hook.totalWatched} onClose={() => setShowPromo(false)} />
       )}
+
+      <footer className="app-footer">
+        Powered by RELAX MEDIA, 2026 Rwanda = Nayituriki Adolphe
+      </footer>
     </div>
   )
 }

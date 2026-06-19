@@ -1444,6 +1444,15 @@ header p {
   background: #222;
 }
 
+.app-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.75rem;
+  color: #666;
+  border-top: 1px solid #222;
+  margin-top: 24px;
+}
+
 .admin-empty {
   text-align: center;
   color: #666;
