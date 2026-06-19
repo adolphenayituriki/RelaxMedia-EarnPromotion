@@ -185,7 +185,10 @@ export default function App() {
   if (authLoading && !user) {
     return (
       <div className="container">
-        <div className="loading-screen">Loading...</div>
+        <div className="loading-screen">
+          <div className="loader-ring" />
+          Loading...
+        </div>
       </div>
     )
   }

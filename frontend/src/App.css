@@ -1024,11 +1024,29 @@ header p {
 
 .loading-screen {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 80vh;
   font-size: 1.2rem;
   color: #666;
+  gap: 20px;
+}
+
+.loader-ring {
+  width: 60px;
+  height: 60px;
+  border: 4px solid transparent;
+  border-top-color: #ff1744;
+  border-right-color: #ffea00;
+  border-bottom-color: #00e676;
+  border-left-color: #2979ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Withdraw summary */
