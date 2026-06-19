@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: relaxmedia-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: OTP_EMAIL
+        sync: false
+      - key: OTP_PASSWORD
+        sync: false
