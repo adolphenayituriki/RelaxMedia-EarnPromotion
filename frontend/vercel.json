@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://relaxmedia-backend.onrender.com/api/$1"
+      "destination": "https://relaxmedia-earnpromotion.onrender.com/api/$1"
     }
   ],
   "buildCommand": "npm run build",
