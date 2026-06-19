@@ -149,7 +149,7 @@ export default function AdminDashboard({ user, onSignOut }) {
       )}
 
       <footer className="app-footer">
-        Powered by RELAX MEDIA, 2026 Rwanda = Nayituriki Adolphe
+        Powered by RELAX MEDIA, 2026 Rwanda = Nayituriki Adolphe &nbsp;|&nbsp; Contact us: <a href="mailto:www.nayituriki.com@gmail.com">www.nayituriki.com@gmail.com</a>
       </footer>
     </div>
   )

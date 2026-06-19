@@ -1453,6 +1453,16 @@ header p {
   margin-top: 24px;
 }
 
+.app-footer a {
+  color: #888;
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  color: #ccc;
+  text-decoration: underline;
+}
+
 .admin-empty {
   text-align: center;
   color: #666;
