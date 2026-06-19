@@ -143,8 +143,19 @@ export default function App() {
     return ok
   }
 
+  const [withdrawInfo, setWithdrawInfo] = useState(null)
+
+  useEffect(() => {
+    if (user && !user.isAdmin) {
+      fetch(`/api/withdraw/earnings-info/${user.userId}`)
+        .then(r => r.json())
+        .then(setWithdrawInfo)
+        .catch(() => {})
+    }
+  }, [user])
+
   const handleWithdraw = useCallback(async ({ amount, fee, netAmount, phone, fullName }) => {
-    if (!user) return
+    if (!user) return { error: 'Not logged in' }
     setWithdrawSubmitting(true)
     try {
       const res = await fetch('/api/withdraw', {
@@ -154,12 +165,18 @@ export default function App() {
       })
       const data = await res.json()
       if (data.success) {
-        setShowWithdraw(false)
+        setWithdrawInfo(prev => ({
+          ...prev,
+          available: data.available,
+          totalWithdrawn: data.totalWithdrawn,
+          history: [{ _id: data.withdraw._id, ...data.withdraw }, ...(prev?.history || [])],
+        }))
+        return { success: true, ...data.withdraw }
       } else {
-        alert(data.error || 'Withdraw request failed')
+        return { error: data.error || 'Withdraw request failed' }
       }
     } catch {
-      alert('Failed to submit withdraw request')
+      return { error: 'Failed to submit withdraw request' }
     } finally {
       setWithdrawSubmitting(false)
     }
@@ -261,6 +278,7 @@ export default function App() {
       {showWithdraw && (
         <WithdrawModal
           earned={earned}
+          available={withdrawInfo?.available ?? earned}
           onWithdraw={handleWithdraw}
           onClose={() => setShowWithdraw(false)}
           submitting={withdrawSubmitting}

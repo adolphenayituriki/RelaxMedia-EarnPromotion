@@ -1045,9 +1045,17 @@ header p {
   transition: all 0.15s;
 }
 
-.withdraw-btn:hover {
+.withdraw-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #2a4a2a, #1a3a1a);
   box-shadow: 0 0 12px rgba(0, 200, 83, 0.2);
+}
+
+.withdraw-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #555;
+  color: #888;
+  background: #222;
 }
 
 .withdraw-overlay {

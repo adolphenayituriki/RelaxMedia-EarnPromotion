@@ -89,11 +89,13 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
         <span>{skipCount}</span>
       </div>
       <button className="promo-btn" onClick={onShowPromo}>View Promotions</button>
-      {user && earned >= 500 && (
-        <button className="withdraw-btn" onClick={onWithdraw}>
-          Withdraw ({earned.toFixed(2)} RFW)
-        </button>
-      )}
+      <button className="withdraw-btn" onClick={() => {
+        if (!user) { alert('Please sign in first to withdraw your earnings.') }
+        else if (earned < 500) { alert(`Minimum withdraw is 500 RFW. You need ${(500 - earned).toFixed(2)} more RFW.`) }
+        else { onWithdraw() }
+      }}>
+        Withdraw ({earned.toFixed(2)} RFW)
+      </button>
 
       <div className="progress-container">
         <div className="progress-bar">

@@ -1,9 +1,13 @@
 import { Router } from 'express'
+import User from '../models/User.js'
 import Withdraw from '../models/Withdraw.js'
-import WatchedVideo from '../models/WatchedVideo.js'
 import { getTier, calcWithdrawFee } from '../shared.js'
 
 const router = Router()
+
+function calcEarnings(totalSeconds) {
+  return (totalSeconds / 3600) * getTier(totalSeconds / 3600).rate
+}
 
 /**
  * @openapi
@@ -46,14 +50,20 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Minimum withdraw is 500 RFW' })
     }
 
-    const records = await WatchedVideo.find({ userId }).lean()
-    const totalSeconds = records.reduce((sum, r) => sum + (r.totalWatched || 0), 0)
-    const hours = totalSeconds / 3600
-    const tier = getTier(hours)
-    const earned = hours * tier.rate
+    const user = await User.findOne({ userId }).lean()
+    if (!user) return res.status(400).json({ error: 'User not found' })
 
-    if (amount > earned) {
-      return res.status(400).json({ error: 'Insufficient earnings' })
+    const totalSeconds = user.totalWatched || 0
+    const earned = calcEarnings(totalSeconds)
+    const totalWithdrawn = await Withdraw.aggregate([
+      { $match: { userId, status: 'processed' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ])
+    const withdrawnSoFar = totalWithdrawn[0]?.total || 0
+    const available = earned - withdrawnSoFar
+
+    if (amount > available) {
+      return res.status(400).json({ error: `Insufficient available earnings. You have ${available.toFixed(2)} RFW available.` })
     }
 
     const fee = calcWithdrawFee(amount)
@@ -62,7 +72,7 @@ router.post('/', async (req, res) => {
     }
 
     const withdraw = await Withdraw.create({ userId, email, amount, fee, netAmount: amount - fee, phone, fullName })
-    res.json({ success: true, withdraw })
+    res.json({ success: true, withdraw, available, earned, totalWithdrawn: withdrawnSoFar })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -70,10 +80,10 @@ router.post('/', async (req, res) => {
 
 /**
  * @openapi
- * /api/withdraw/{userId}:
+ * /api/withdraw/earnings-info/{userId}:
  *   get:
  *     tags: [Withdraw]
- *     summary: Get withdraw history for a user
+ *     summary: Get earnings info and withdraw history for a user
  *     parameters:
  *       - in: path
  *         name: userId
@@ -82,13 +92,23 @@ router.post('/', async (req, res) => {
  *           type: string
  *     responses:
  *       200:
- *         description: List of withdraw requests
+ *         description: Earnings info with history
  */
-router.get('/:userId', async (req, res) => {
+router.get('/earnings-info/:userId', async (req, res) => {
   try {
-    const records = await Withdraw.find({ userId: req.params.userId })
-      .sort({ createdAt: -1 }).lean()
-    res.json(records)
+    const user = await User.findOne({ userId: req.params.userId }).lean()
+    if (!user) return res.json({ earned: 0, totalWithdrawn: 0, available: 0, history: [] })
+
+    const totalSeconds = user.totalWatched || 0
+    const earned = calcEarnings(totalSeconds)
+    const totalWithdrawn = await Withdraw.aggregate([
+      { $match: { userId: req.params.userId, status: 'processed' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ])
+    const withdrawnSoFar = totalWithdrawn[0]?.total || 0
+    const history = await Withdraw.find({ userId: req.params.userId }).sort({ createdAt: -1 }).lean()
+
+    res.json({ earned, totalWithdrawn: withdrawnSoFar, available: earned - withdrawnSoFar, history })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
