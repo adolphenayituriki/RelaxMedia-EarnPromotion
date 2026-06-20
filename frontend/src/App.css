@@ -140,6 +140,49 @@ header h1 {
   background: #cc0000;
 }
 
+.yt-watch-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #2a1a1a, #1a0f0f);
+  border: 1px solid #f00;
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.yt-watch-btn:hover {
+  background: linear-gradient(135deg, #3a1a1a, #2a0f0f);
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
+  border-color: #ff3333;
+}
+
+.yt-watch-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f00;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.yt-watch-btn-sub {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #aaa;
+  margin-left: auto;
+}
+
 .playlist-info {
   display: flex;
   flex-direction: column;
