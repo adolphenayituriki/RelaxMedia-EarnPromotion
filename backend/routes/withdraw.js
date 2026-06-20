@@ -1,13 +1,9 @@
 import { Router } from 'express'
 import User from '../models/User.js'
 import Withdraw from '../models/Withdraw.js'
-import { getTier, calcWithdrawFee } from '../shared.js'
+import { calcWithdrawFee } from '../shared.js'
 
 const router = Router()
-
-function calcEarnings(totalSeconds) {
-  return (totalSeconds / 3600) * getTier(totalSeconds / 3600).rate
-}
 
 /**
  * @openapi
@@ -53,8 +49,7 @@ router.post('/', async (req, res) => {
     const user = await User.findOne({ userId }).lean()
     if (!user) return res.status(400).json({ error: 'User not found' })
 
-    const totalSeconds = user.totalWatched || 0
-    const earned = calcEarnings(totalSeconds)
+    const earned = user.earned ?? 0
     const totalWithdrawn = await Withdraw.aggregate([
       { $match: { userId, status: 'processed' } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
@@ -99,8 +94,7 @@ router.get('/earnings-info/:userId', async (req, res) => {
     const user = await User.findOne({ userId: req.params.userId }).lean()
     if (!user) return res.json({ earned: 0, totalWithdrawn: 0, available: 0, history: [] })
 
-    const totalSeconds = user.totalWatched || 0
-    const earned = calcEarnings(totalSeconds)
+    const earned = user.earned ?? 0
     const totalWithdrawn = await Withdraw.aggregate([
       { $match: { userId: req.params.userId, status: 'processed' } },
       { $group: { _id: null, total: { $sum: '$amount' } } },

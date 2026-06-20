@@ -4,7 +4,7 @@ import WatchedVideo from '../models/WatchedVideo.js'
 import Withdraw from '../models/Withdraw.js'
 import RewardClaim from '../models/RewardClaim.js'
 import Comment from '../models/Comment.js'
-import { ADMIN_EMAIL, getTier, generateUserId, hashPassword } from '../shared.js'
+import { ADMIN_EMAIL, generateUserId, hashPassword } from '../shared.js'
 
 const router = Router()
 
@@ -23,7 +23,8 @@ const router = Router()
 router.get('/stats', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments({ email: { $ne: ADMIN_EMAIL } })
-    const totalWatched = await WatchedVideo.aggregate([
+    const totalWatchAgg = await User.aggregate([
+      { $match: { email: { $ne: ADMIN_EMAIL } } },
       { $group: { _id: null, total: { $sum: '$totalWatched' } } },
     ])
     const pendingWithdrawals = await Withdraw.countDocuments({ status: 'pending' })
@@ -34,7 +35,7 @@ router.get('/stats', async (req, res) => {
     const totalComments = await Comment.countDocuments()
     res.json({
       totalUsers,
-      totalSeconds: totalWatched[0]?.total || 0,
+      totalSeconds: totalWatchAgg[0]?.total || 0,
       pendingWithdrawals,
       totalPaid,
       totalVideosWatched,
@@ -63,11 +64,6 @@ router.get('/users', async (req, res) => {
     const users = await User.find({ email: { $ne: ADMIN_EMAIL } }).sort({ createdAt: -1 }).lean()
     const result = []
     for (const u of users) {
-      const watched = await WatchedVideo.find({ userId: u.userId }).lean()
-      const totalSeconds = watched.reduce((s, r) => s + (r.totalWatched || 0), 0)
-      const hours = totalSeconds / 3600
-      const tier = getTier(hours)
-      const earned = hours * tier.rate
       const withdrawn = await Withdraw.find({ userId: u.userId, status: 'processed' }).lean()
       const totalWithdrawn = withdrawn.reduce((s, r) => s + r.amount, 0)
       result.push({
@@ -75,8 +71,8 @@ router.get('/users', async (req, res) => {
         email: u.email,
         userId: u.userId,
         totalWatched: u.totalWatched,
+        earned: u.earned ?? 0,
         verified: u.verified,
-        earned,
         totalWithdrawn,
         createdAt: u.createdAt,
       })
@@ -107,14 +103,9 @@ router.get('/users/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id).lean()
     if (!user) return res.status(404).json({ error: 'User not found' })
-    const watched = await WatchedVideo.find({ userId: user.userId }).lean()
-    const totalSeconds = watched.reduce((s, r) => s + (r.totalWatched || 0), 0)
-    const hours = totalSeconds / 3600
-    const tier = getTier(hours)
-    const earned = hours * tier.rate
     const withdrawn = await Withdraw.find({ userId: user.userId, status: 'processed' }).lean()
     const totalWithdrawn = withdrawn.reduce((s, r) => s + r.amount, 0)
-    res.json({ ...user, earned, totalWithdrawn })
+    res.json({ ...user, earned: user.earned ?? 0, totalWithdrawn })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -414,10 +405,7 @@ router.get('/withdrawals', async (req, res) => {
     const enriched = []
     for (const w of withdrawals) {
       const user = await User.findOne({ userId: w.userId }).lean()
-      const totalSeconds = user?.totalWatched || 0
-      const hours = totalSeconds / 3600
-      const tier = getTier(hours)
-      const earned = hours * tier.rate
+      const earned = user?.earned ?? 0
       const processed = await Withdraw.find({ userId: w.userId, status: 'processed' }).lean()
       const totalWithdrawn = processed.reduce((s, r) => s + r.amount, 0)
       enriched.push({ ...w, userEarned: earned, userTotalWithdrawn: totalWithdrawn, userAvailable: earned - totalWithdrawn })

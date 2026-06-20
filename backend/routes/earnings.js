@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import User from '../models/User.js'
-import { getTier } from '../shared.js'
+import { getTier, calcEarnings } from '../shared.js'
 
 const router = Router()
 
@@ -39,7 +39,7 @@ router.get('/:userId', async (req, res) => {
     const totalSeconds = user?.totalWatched || 0
     const hours = totalSeconds / 3600
     const tier = getTier(hours)
-    const earned = hours * tier.rate
+    const earned = user?.earned ?? calcEarnings(totalSeconds)
     res.json({ totalSeconds, hours, tier: tier.label, earned })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -72,6 +72,11 @@ router.put('/', async (req, res) => {
     const { userId, totalSeconds } = req.body
     if (!userId || totalSeconds == null) return res.status(400).json({ error: 'userId and totalSeconds required' })
     await User.findOneAndUpdate({ userId }, { $max: { totalWatched: totalSeconds } })
+    const user = await User.findOne({ userId })
+    if (user) {
+      const earned = calcEarnings(user.totalWatched)
+      await User.findOneAndUpdate({ userId }, { $set: { earned } })
+    }
     res.json({ success: true })
   } catch (err) {
     res.status(500).json({ error: err.message })

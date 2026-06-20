@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import WatchedVideo from '../models/WatchedVideo.js'
 import User from '../models/User.js'
+import { calcEarnings } from '../shared.js'
 
 const router = Router()
 
@@ -77,6 +78,11 @@ router.post('/', async (req, res) => {
 
     if (cumulativeTotal != null) {
       await User.findOneAndUpdate({ userId }, { $max: { totalWatched: cumulativeTotal } })
+      const user = await User.findOne({ userId })
+      if (user) {
+        const earned = calcEarnings(user.totalWatched)
+        await User.findOneAndUpdate({ userId }, { $set: { earned } })
+      }
     }
 
     res.json({ success: true })

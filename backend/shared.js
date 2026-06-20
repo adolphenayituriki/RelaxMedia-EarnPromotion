@@ -17,6 +17,11 @@ export function getTier(hours) {
   return t
 }
 
+export function calcEarnings(totalSeconds) {
+  const hours = totalSeconds / 3600
+  return hours * getTier(hours).rate
+}
+
 export function calcWithdrawFee(amount) {
   if (amount < 500) return null
   if (amount <= 1000) return 50
