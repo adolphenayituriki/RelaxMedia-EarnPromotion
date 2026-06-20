@@ -15,3 +15,7 @@ services:
         sync: false
       - key: OTP_PASSWORD
         sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
