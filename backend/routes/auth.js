@@ -107,10 +107,9 @@ router.post('/signin', async (req, res) => {
           email: ADMIN_EMAIL,
           userId: 'admin_' + crypto.randomBytes(4).toString('hex'),
           passwordHash: hashPassword(ADMIN_PASSWORD),
-          verified: true,
+          verified: false,
         })
       }
-      return res.json({ userId: user.userId, email: user.email, isAdmin: true })
     }
 
     let user = await User.findOne({ email: cleanEmail })
@@ -169,7 +168,7 @@ router.post('/verify-email', async (req, res) => {
     user.verificationCodeExpires = null
     await user.save()
 
-    res.json({ userId: user.userId, email: user.email, fullName: user.fullName || '', isAdmin: false })
+    res.json({ userId: user.userId, email: user.email, fullName: user.fullName || '', isAdmin: user.email === ADMIN_EMAIL })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

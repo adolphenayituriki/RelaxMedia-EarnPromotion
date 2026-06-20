@@ -1063,7 +1063,64 @@ header p {
     min-height: 100vh;
   }
 
-  .app-footer {
+/* Alert modal */
+.alert-modal {
+  background: #1a1a1a;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #333;
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5);
+}
+
+.alert-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.alert-modal-header h2 {
+  font-size: 1.2rem;
+  color: #ff1744;
+  margin: 0;
+}
+
+.alert-modal-body {
+  margin-bottom: 24px;
+}
+
+.alert-modal-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.alert-modal-body p {
+  font-size: 1rem;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.alert-modal-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f00;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.alert-modal-btn:hover {
+  background: #cc0000;
+}
+
+.app-footer {
     font-size: 0.65rem;
     padding: 14px;
   }

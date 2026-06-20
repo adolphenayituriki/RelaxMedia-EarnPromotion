@@ -41,6 +41,7 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
   const skippedPct = Math.min((totalSkipped / dur) * 100, 100)
   const nextTier = TIERS.find(t => t.minHours > tier.minHours)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [minWithdrawMsg, setMinWithdrawMsg] = useState('')
 
   return (
     <div className="stats-section">
@@ -151,7 +152,7 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
       <button className="promo-btn" onClick={onShowPromo}>View Promotions</button>
       <button className="withdraw-btn" onClick={() => {
         if (!user) { alert('Please sign in first to withdraw your earnings.') }
-        else if (earned < 500) { alert(`Minimum withdraw is 500 RFW. You need ${(500 - earned).toFixed(2)} more RFW.`) }
+        else if (earned < 500) { setMinWithdrawMsg(`Minimum withdraw is 500 RFW. You need ${(500 - earned).toFixed(2)} more RFW.`) }
         else { onWithdraw() }
       }}>
         Withdraw ({earned.toFixed(2)} RFW)
@@ -167,6 +168,22 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
           <span>Skipped ({fmt(totalSkipped)})</span>
         </div>
       </div>
+
+      {minWithdrawMsg && (
+        <div className="signin-overlay" onClick={() => setMinWithdrawMsg('')}>
+          <div className="alert-modal" onClick={e => e.stopPropagation()}>
+            <div className="alert-modal-header">
+              <h2>Insufficient Earnings</h2>
+              <button className="signin-close" onClick={() => setMinWithdrawMsg('')}>✕</button>
+            </div>
+            <div className="alert-modal-body">
+              <div className="alert-modal-icon">⚠️</div>
+              <p>{minWithdrawMsg}</p>
+            </div>
+            <button className="alert-modal-btn" onClick={() => setMinWithdrawMsg('')}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

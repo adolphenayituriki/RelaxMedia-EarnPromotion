@@ -135,11 +135,29 @@ export default function App() {
     const handleBeforeUnload = () => {
       const total = hook.getCumulativeTotal()
       if (total > 0) {
-        navigator.sendBeacon('/api/earnings', JSON.stringify({ userId: user.userId, totalSeconds: total }))
+        navigator.sendBeacon('/api/earnings', new Blob([JSON.stringify({ userId: user.userId, totalSeconds: total })], { type: 'application/json' }))
       }
     }
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [user, hook.getCumulativeTotal])
+
+  // Periodic auto-save every 30 seconds during watch sessions
+  useEffect(() => {
+    if (!user) return
+    const interval = setInterval(async () => {
+      const total = hook.getCumulativeTotal()
+      if (total > 0) {
+        try {
+          await fetch('/api/earnings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.userId, totalSeconds: total }),
+          })
+        } catch {}
+      }
+    }, 30000)
+    return () => clearInterval(interval)
   }, [user, hook.getCumulativeTotal])
 
   const handleSignIn = async (email, password) => {
@@ -155,7 +173,7 @@ export default function App() {
   const handleSignOut = () => {
     const total = hook.getCumulativeTotal()
     if (total > 0) {
-      navigator.sendBeacon('/api/earnings', JSON.stringify({ userId: user.userId, totalSeconds: total }))
+      navigator.sendBeacon('/api/earnings', new Blob([JSON.stringify({ userId: user.userId, totalSeconds: total })], { type: 'application/json' }))
     }
     hook.resetState()
     signOut()
