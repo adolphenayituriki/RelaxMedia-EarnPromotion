@@ -822,6 +822,243 @@ header p {
   }
 }
 
+@media (max-width: 600px) {
+  .container {
+    padding: 12px;
+  }
+
+  header h1 {
+    font-size: 1.1rem;
+  }
+
+  header p {
+    font-size: 0.75rem;
+  }
+
+  .header-top {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .user-info {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .unwatched-count {
+    font-size: 0.75rem;
+  }
+
+  .player-section {
+    padding: 10px;
+  }
+
+  .input-row {
+    flex-direction: column;
+  }
+
+  .input-row button {
+    width: 100%;
+  }
+
+  .mode-toggle button {
+    font-size: 0.7rem;
+    padding: 5px 3px;
+  }
+
+  .playlist-nav button {
+    font-size: 0.75rem;
+    padding: 6px;
+  }
+
+  .stats-section {
+    padding: 14px;
+  }
+
+  .stats-section h2 {
+    font-size: 0.95rem;
+  }
+
+  .earnings-amount {
+    font-size: 1.6rem;
+  }
+
+  .earnings-box {
+    padding: 12px;
+  }
+
+  .stat {
+    font-size: 0.8rem;
+    padding: 6px 0;
+  }
+
+  .video-title {
+    max-width: 120px;
+  }
+
+  .progress-bar {
+    height: 18px;
+  }
+
+  .log-section {
+    padding: 12px;
+  }
+
+  .log {
+    max-height: 140px;
+    font-size: 0.7rem;
+  }
+
+  .comment-section {
+    padding: 12px;
+  }
+
+  .comment-input-row {
+    flex-direction: column;
+  }
+
+  .comment-input-row button {
+    width: 100%;
+  }
+
+  .comment-list {
+    max-height: 180px;
+  }
+
+  .like-subscribe {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .sidebar {
+    padding: 12px;
+  }
+
+  .sidebar-item {
+    width: 120px;
+  }
+
+  .sidebar-thumb {
+    height: 66px;
+  }
+
+  .sidebar-title {
+    width: 100px;
+    font-size: 0.7rem;
+  }
+
+  .signin-modal,
+  .withdraw-modal,
+  .promo-modal {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .signin-modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .signin-modal input {
+    font-size: 0.9rem;
+    padding: 10px 14px;
+  }
+
+  .signin-modal form button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .withdraw-modal {
+    padding: 20px;
+  }
+
+  .withdraw-header h2 {
+    font-size: 1rem;
+  }
+
+  .withdraw-modal form {
+    gap: 12px;
+  }
+
+  .withdraw-modal input {
+    font-size: 0.9rem;
+    padding: 10px 14px;
+  }
+
+  .promo-modal {
+    padding: 16px;
+  }
+
+  .promo-modal-header h2 {
+    font-size: 1rem;
+  }
+
+  .promo-tier {
+    padding: 10px;
+  }
+
+  .toast-success,
+  .toast-info {
+    font-size: 0.85rem;
+    padding: 10px 20px;
+    max-width: 90vw;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .admin-container {
+    padding: 12px;
+  }
+
+  .admin-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .admin-nav {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .admin-nav button {
+    font-size: 0.75rem;
+    padding: 6px;
+    flex: 1 0 auto;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .admin-stat-card {
+    padding: 14px;
+  }
+
+  .admin-stat-value {
+    font-size: 1.3rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+
+  .admin-modal {
+    padding: 20px;
+    width: 100%;
+    max-width: 100vw;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  .app-footer {
+    font-size: 0.65rem;
+    padding: 14px;
+  }
+}
+
 .signin-overlay {
   position: fixed;
   inset: 0;
