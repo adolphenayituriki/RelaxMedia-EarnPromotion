@@ -1,14 +1,7 @@
 export default function VideoPlayer({ isPlaylist, currentVideo, playlistLength, onNext, onPrev }) {
-  const ytUrl = currentVideo?.id ? `https://www.youtube.com/watch?v=${currentVideo.id}` : null
-
   return (
     <div className="player-section">
       <div id="youtube-player" className="player" />
-      <a className="yt-watch-btn" href={ytUrl} target="_blank" rel="noopener noreferrer">
-        <span className="yt-watch-btn-icon">▶</span>
-        <span>Watch on YouTube</span>
-        <span className="yt-watch-btn-sub">(helps our channel grow)</span>
-      </a>
 
       {isPlaylist && (
         <div className="playlist-info">
