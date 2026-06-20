@@ -237,13 +237,11 @@ export default function App() {
     <div className="container">
       <header>
         <div className="header-top">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="header-title-row">
             <button className="refresh-btn" onClick={() => window.location.reload()} title="Refresh page">↻</button>
-            <div>
-              <h1><span className="loader-ring-inline" /> RELAX MEDIA EARN PROMOTION / From youtube</h1>
-              <p>Watch time is only counted during normal playback. Skipping / scrubbing forward pauses counting.</p>
-            </div>
+            <h1><span className="loader-ring-inline" /> RELAX MEDIA EARN PROMOTION / From youtube</h1>
           </div>
+          <p className="header-note">Watch time is only counted during normal playback. Skipping / scrubbing forward pauses counting.</p>
           <div className="user-info">
             {user ? (
               <>
