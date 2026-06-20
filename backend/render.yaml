@@ -3,7 +3,7 @@ services:
     name: relaxmedia-backend
     env: node
     buildCommand: npm install
-    startCommand: node server.js
+    startCommand: node --use-system-ca server.js
     envVars:
       - key: MONGO_URI
         sync: false
