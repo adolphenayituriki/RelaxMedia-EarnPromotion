@@ -63,19 +63,79 @@ header h1 {
   padding: 16px;
 }
 
-.player {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #000;
-  border-radius: 8px;
-  overflow: hidden;
+.yt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
-.controls {
+.yt-card-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #000;
+}
+
+.yt-card-thumb-placeholder {
+  background: #222;
+}
+
+.yt-card-body {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.yt-card-title {
+  font-size: 0.95rem;
+  color: #eee;
+  line-height: 1.3;
+}
+
+.yt-card-btn {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  padding: 12px 28px;
+  background: #f00;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.yt-card-btn:hover {
+  background: #cc0000;
+  box-shadow: 0 0 16px rgba(255, 0, 0, 0.3);
+}
+
+.yt-card-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.yt-card-btn-icon {
+  font-size: 0.85rem;
+}
+
+.yt-card-duration {
+  font-size: 0.8rem;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+.yt-card-hint {
+  font-size: 0.75rem;
+  color: #666;
+  font-style: italic;
+  margin-top: -2px;
 }
 
 .mode-toggle {
@@ -2289,4 +2349,44 @@ header h1 {
   color: #ffa726;
   font-style: italic;
   font-size: 0.75rem;
+}
+
+.toc-toggle {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: #1e1e1e;
+  border-radius: 8px;
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.toc-toggle:hover {
+  color: #eee;
+}
+
+.toc-content {
+  margin-top: 8px;
+  padding: 14px 16px;
+  background: #181818;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.toc-content p {
+  margin: 10px 0 4px;
+  color: #ccc;
+}
+
+.toc-content ul {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}
+
+.toc-content li {
+  margin-bottom: 4px;
 }

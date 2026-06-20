@@ -26,7 +26,7 @@ export default function PlaylistSidebar({ videos, currentIndex, onJumpTo, watche
               onClick={() => handleClick(v, i)}
             >
               <img
-                src={v.thumbnail}
+                src={v.thumbnail || `https://img.youtube.com/vi/${v.id}/default.jpg`}
                 alt={v.title}
                 className="sidebar-thumb"
                 loading="lazy"

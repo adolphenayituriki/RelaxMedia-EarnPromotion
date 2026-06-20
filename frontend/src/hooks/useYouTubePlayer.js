@@ -1,41 +1,21 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
-
-const SKIP_THRESHOLD = 2
-const SAMPLE_INTERVAL = 1000
-
-function fmt(s) {
-  const m = Math.floor(s / 60)
-  const sec = Math.floor(s % 60)
-  return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
-}
+import { useState, useRef, useCallback } from 'react'
 
 export default function useYouTubePlayer() {
-  const [status, setStatus] = useState('Not loaded')
+  const [status, setStatus] = useState('YouTube')
   const [duration, setDuration] = useState(0)
   const [totalWatched, setTotalWatched] = useState(0)
-  const [totalSkipped, setTotalSkipped] = useState(0)
-  const [skipCount, setSkipCount] = useState(0)
+  const [totalSkipped] = useState(0)
+  const [skipCount] = useState(0)
   const [logs, setLogs] = useState([])
-  const [currentVideo, setCurrentVideo] = useState({ index: 0, title: '', id: '' })
+  const [currentVideo, setCurrentVideo] = useState({ index: 0, title: '', id: '', duration: 0 })
   const [playlistLength, setPlaylistLength] = useState(0)
   const [isPlaylist, setIsPlaylist] = useState(false)
   const [playlistVideos, setPlaylistVideos] = useState([])
-  const [lastEndedVideoId, setLastEndedVideoId] = useState('')
+  const [lastEndedVideoId] = useState('')
 
-  const playerRef = useRef(null)
-  const readyRef = useRef(false)
-  const timerRef = useRef(null)
-  const lastTimeRef = useRef(0)
-  const lastStateRef = useRef(-1)
   const baseWatchedRef = useRef(0)
   const watchedRef = useRef(0)
-  const skippedRef = useRef(0)
-  const skipsRef = useRef(0)
   const logsRef = useRef([])
-  const watchedSecondsRef = useRef(new Map())
-  const currentVideoIdRef = useRef('')
-  const lastEndedRef = useRef('')
-  const hiddenRef = useRef(false)
 
   const addLog = useCallback((msg) => {
     const t = `[${new Date().toLocaleTimeString()}] ${msg}`
@@ -43,307 +23,54 @@ export default function useYouTubePlayer() {
     setLogs([...logsRef.current])
   }, [])
 
-  const updateVideoInfo = useCallback(() => {
-    const p = playerRef.current
-    if (!p || !p.getVideoData) return
-    const data = p.getVideoData()
-    const idx = p.getPlaylistIndex != null ? p.getPlaylistIndex() : 0
-    const len = p.getPlaylist != null ? p.getPlaylist().length : 0
-    const vid = data.video_id || ''
-    currentVideoIdRef.current = vid
-    setCurrentVideo({ index: idx >= 0 ? idx : 0, title: data.title || '', id: vid })
-    setPlaylistLength(len)
-  }, [])
-
-  function countUniqueSeconds(videoId, from, to) {
-    if (!watchedSecondsRef.current.has(videoId)) {
-      watchedSecondsRef.current.set(videoId, new Set())
-    }
-    const set = watchedSecondsRef.current.get(videoId)
-    const start = Math.max(0, Math.floor(from))
-    const end = Math.floor(to)
-    let newCount = 0
-    for (let s = start; s < end; s++) {
-      if (!set.has(s)) {
-        set.add(s)
-        newCount++
-      }
-    }
-    return newCount
-  }
-
-  // Catch up watch time when tab comes back from background
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden) {
-        hiddenRef.current = true
-        return
-      }
-
-      const p = playerRef.current
-      if (!p || !readyRef.current) return
-
-      hiddenRef.current = false
-      const prevState = lastStateRef.current
-      const now = p.getCurrentTime()
-
-      if (prevState === YT.PlayerState.PLAYING) {
-        const state = p.getPlayerState()
-        if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.BUFFERING) {
-          p.playVideo()
-        }
-
-        if (now > lastTimeRef.current) {
-          const vid = currentVideoIdRef.current
-          if (vid) {
-            const unique = countUniqueSeconds(vid, lastTimeRef.current, now)
-            watchedRef.current += unique
-            setTotalWatched(baseWatchedRef.current + watchedRef.current)
-            addLog(`Tab resumed: +${unique}s while away`)
-          }
-        }
-      }
-
-      lastTimeRef.current = p.getCurrentTime()
-    }
-
-    document.addEventListener('visibilitychange', handleVisibility)
-    return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [addLog])
-
-  const sample = useCallback(() => {
-    const p = playerRef.current
-    if (!p || !readyRef.current) return
-
-    const state = p.getPlayerState()
-    const now = p.getCurrentTime()
-
-    if (state === YT.PlayerState.PLAYING && lastStateRef.current === YT.PlayerState.PLAYING) {
-      const delta = now - lastTimeRef.current
-      const vid = currentVideoIdRef.current
-
-      if (delta >= 0 && delta <= SKIP_THRESHOLD + 0.5) {
-        const unique = countUniqueSeconds(vid, lastTimeRef.current, now)
-        watchedRef.current += unique
-      } else if (delta > SKIP_THRESHOLD + 0.5 && hiddenRef.current) {
-        const unique = countUniqueSeconds(vid, lastTimeRef.current, now)
-        watchedRef.current += unique
-        hiddenRef.current = false
-        addLog(`Background catch-up: +${unique}s (was away ${delta.toFixed(1)}s)`)
-      } else if (delta > SKIP_THRESHOLD + 0.5) {
-        const end = lastTimeRef.current + SKIP_THRESHOLD + 0.5
-        const unique = countUniqueSeconds(vid, lastTimeRef.current, end)
-        const skip = delta - (SKIP_THRESHOLD + 0.5)
-        watchedRef.current += unique
-        skippedRef.current += skip
-        skipsRef.current++
-        addLog(`Skip detected! Jumped ~${delta.toFixed(1)}s (${unique} new unique seconds, ${skip.toFixed(1)}s skipped)`)
-      }
-
-      setTotalWatched(baseWatchedRef.current + watchedRef.current)
-      setTotalSkipped(skippedRef.current)
-      setSkipCount(skipsRef.current)
-    }
-
-    lastTimeRef.current = now
-    lastStateRef.current = state
-  }, [addLog])
-
-  const stopSampling = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
-
-  const resetState = useCallback(() => {
-    stopSampling()
-    watchedRef.current = 0
-    skippedRef.current = 0
-    skipsRef.current = 0
-    lastTimeRef.current = 0
-    lastStateRef.current = -1
-    logsRef.current = []
-    readyRef.current = false
-    hiddenRef.current = false
-    setTotalWatched(baseWatchedRef.current)
-    setTotalSkipped(0)
-    setSkipCount(0)
-    setLogs([])
-    setDuration(0)
-    setStatus('Not loaded')
-    setCurrentVideo({ index: 0, title: '', id: '' })
-    setPlaylistLength(0)
+  const loadVideo = useCallback((videoId, title, duration) => {
+    setCurrentVideo(prev => ({ ...prev, id: videoId, title: title || prev.title, duration: duration || 0 }))
+    if (duration) setDuration(duration)
     setIsPlaylist(false)
-    setPlaylistVideos([])
-    setLastEndedVideoId('')
-  }, [stopSampling])
+    setStatus('YouTube')
+  }, [setDuration])
 
-  const loadVideo = useCallback((videoId) => {
-    resetState()
-
-    const existing = playerRef.current
-    if (existing && existing.destroy) {
-      existing.destroy()
-      playerRef.current = null
-    }
-
-    setStatus('Loading...')
-
-    const onReady = () => {
-      const p = playerRef.current
-      if (!p) return
-      readyRef.current = true
-      setDuration(p.getDuration())
-      setStatus('Ready')
-      updateVideoInfo()
-      addLog(`Loaded: ${p.getVideoData().title} (${fmt(p.getDuration())})`)
-    }
-
-    const onStateChange = (e) => {
-      const s = e.data
-      const names = {
-        [-1]: 'Unstarted',
-        [YT.PlayerState.ENDED]: 'Ended',
-        [YT.PlayerState.PLAYING]: 'Playing',
-        [YT.PlayerState.PAUSED]: 'Paused',
-        [YT.PlayerState.BUFFERING]: 'Buffering',
-        [YT.PlayerState.CUED]: 'Cued',
-      }
-      setStatus(names[s] || String(s))
-
-      if (s === YT.PlayerState.CUED || s === YT.PlayerState.PLAYING) {
-        updateVideoInfo()
-        if (s === YT.PlayerState.CUED) {
-          setDuration(playerRef.current.getDuration())
-          addLog(`Now playing: ${playerRef.current.getVideoData().title}`)
-        }
-      }
-
-      if (s === YT.PlayerState.PLAYING) {
-        lastTimeRef.current = playerRef.current.getCurrentTime()
-        lastStateRef.current = YT.PlayerState.PLAYING
-        if (!timerRef.current) {
-          timerRef.current = setInterval(sample, SAMPLE_INTERVAL)
-        }
-      } else if (s === YT.PlayerState.PAUSED || s === YT.PlayerState.ENDED) {
-        lastStateRef.current = s
-        if (s === YT.PlayerState.ENDED) {
-          stopSampling()
-          const vid = currentVideoIdRef.current
-          if (vid && vid !== lastEndedRef.current) {
-            lastEndedRef.current = vid
-            setLastEndedVideoId(vid)
-            addLog(`Video finished: ${vid}`)
-          }
-        }
-      }
-    }
-
-    playerRef.current = new YT.Player('youtube-player', {
-      height: '100%',
-      width: '100%',
-      videoId,
-      playerVars: { rel: 0, modestbranding: 1 },
-      events: { onReady, onStateChange },
-    })
-  }, [resetState, sample, addLog, updateVideoInfo])
-
-  const loadPlaylist = useCallback((playlistId) => {
-    resetState()
-
-    const existing = playerRef.current
-    if (existing && existing.destroy) {
-      existing.destroy()
-      playerRef.current = null
-    }
-
+  const loadPlaylist = useCallback((playlistId, videos) => {
     setIsPlaylist(true)
-    setStatus('Loading playlist...')
-
-    const onReady = () => {
-      const p = playerRef.current
-      if (!p) return
-      readyRef.current = true
-      setDuration(p.getDuration())
-      setStatus('Ready')
-      updateVideoInfo()
-      addLog(`Playlist loaded: ${playlistId} (${p.getPlaylist().length} videos)`)
+    if (videos && videos.length > 0) {
+      setPlaylistVideos(videos)
+      setPlaylistLength(videos.length)
+      setCurrentVideo({ index: 0, title: videos[0].title || '', id: videos[0].id || '' })
     }
-
-    const onStateChange = (e) => {
-      const s = e.data
-      const names = {
-        [-1]: 'Unstarted',
-        [YT.PlayerState.ENDED]: 'Ended',
-        [YT.PlayerState.PLAYING]: 'Playing',
-        [YT.PlayerState.PAUSED]: 'Paused',
-        [YT.PlayerState.BUFFERING]: 'Buffering',
-        [YT.PlayerState.CUED]: 'Cued',
-      }
-      setStatus(names[s] || String(s))
-
-      if (s === YT.PlayerState.CUED || s === YT.PlayerState.PLAYING) {
-        updateVideoInfo()
-        if (s === YT.PlayerState.CUED) {
-          const p = playerRef.current
-          setDuration(p.getDuration())
-          addLog(`Now playing (${p.getPlaylistIndex() + 1}/${p.getPlaylist().length}): ${p.getVideoData().title}`)
-        }
-      }
-
-      if (s === YT.PlayerState.PLAYING) {
-        lastTimeRef.current = playerRef.current.getCurrentTime()
-        lastStateRef.current = YT.PlayerState.PLAYING
-        if (!timerRef.current) {
-          timerRef.current = setInterval(sample, SAMPLE_INTERVAL)
-        }
-      } else if (s === YT.PlayerState.PAUSED || s === YT.PlayerState.ENDED) {
-        lastStateRef.current = s
-        if (s === YT.PlayerState.ENDED) {
-          stopSampling()
-          const vid = currentVideoIdRef.current
-          if (vid && vid !== lastEndedRef.current) {
-            lastEndedRef.current = vid
-            setLastEndedVideoId(vid)
-            addLog(`Video finished: ${vid}`)
-          }
-        }
-      }
-    }
-
-    playerRef.current = new YT.Player('youtube-player', {
-      height: '100%',
-      width: '100%',
-      videoId: '',
-      playerVars: {
-        rel: 0,
-        modestbranding: 1,
-        listType: 'playlist',
-        list: playlistId,
-      },
-      events: { onReady, onStateChange },
-    })
-  }, [resetState, sample, addLog, updateVideoInfo])
+    setStatus('YouTube')
+    addLog(`Playlist loaded: ${playlistId} (${videos?.length || 0} videos)`)
+  }, [addLog])
 
   const nextVideo = useCallback(() => {
-    const p = playerRef.current
-    if (p && p.nextVideo) p.nextVideo()
-  }, [])
+    setCurrentVideo(prev => {
+      const nextIdx = prev.index + 1
+      if (nextIdx < playlistVideos.length) {
+        const v = playlistVideos[nextIdx]
+        return { index: nextIdx, title: v.title || '', id: v.id || '' }
+      }
+      return prev
+    })
+  }, [playlistVideos])
 
   const prevVideo = useCallback(() => {
-    const p = playerRef.current
-    if (p && p.previousVideo) p.previousVideo()
-  }, [])
+    setCurrentVideo(prev => {
+      const prevIdx = prev.index - 1
+      if (prevIdx >= 0) {
+        const v = playlistVideos[prevIdx]
+        return { index: prevIdx, title: v.title || '', id: v.id || '' }
+      }
+      return prev
+    })
+  }, [playlistVideos])
 
   const jumpToVideo = useCallback((index) => {
-    const p = playerRef.current
-    if (p && p.playVideoAt) p.playVideoAt(index)
-  }, [])
+    if (index >= 0 && index < playlistVideos.length) {
+      const v = playlistVideos[index]
+      setCurrentVideo({ index, title: v.title || '', id: v.id || '' })
+    }
+  }, [playlistVideos])
 
-  const clearEndedFlag = useCallback(() => {
-    setLastEndedVideoId('')
-  }, [])
+  const clearEndedFlag = useCallback(() => {}, [])
 
   const restoreWatched = useCallback((seconds) => {
     baseWatchedRef.current = seconds
@@ -355,6 +82,28 @@ export default function useYouTubePlayer() {
     return baseWatchedRef.current + watchedRef.current
   }, [])
 
+  const addWatchTime = useCallback((seconds) => {
+    if (seconds > 0) {
+      watchedRef.current += seconds
+      setTotalWatched(baseWatchedRef.current + watchedRef.current)
+      addLog(`Credited ${seconds}s for YouTube watch`)
+    }
+  }, [addLog])
+
+  const resetState = useCallback(() => {
+    watchedRef.current = 0
+    logsRef.current = []
+    baseWatchedRef.current = 0
+    setTotalWatched(0)
+    setLogs([])
+    setDuration(0)
+    setStatus('YouTube')
+    setCurrentVideo({ index: 0, title: '', id: '' })
+    setPlaylistLength(0)
+    setIsPlaylist(false)
+    setPlaylistVideos([])
+  }, [])
+
   return {
     loadVideo,
     loadPlaylist,
@@ -364,6 +113,7 @@ export default function useYouTubePlayer() {
     clearEndedFlag,
     restoreWatched,
     getCumulativeTotal,
+    addWatchTime,
     resetState,
     status,
     duration,
@@ -376,6 +126,7 @@ export default function useYouTubePlayer() {
     isPlaylist,
     playlistVideos,
     setPlaylistVideos,
+    setDuration,
     lastEndedVideoId,
   }
 }

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import VideoPlayer from './components/VideoPlayer.jsx'
 import StatsPanel from './components/StatsPanel.jsx'
-import ActivityLog from './components/ActivityLog.jsx'
 import PlaylistSidebar from './components/PlaylistSidebar.jsx'
 import Promotions from './components/Promotions.jsx'
 import SignIn from './components/SignIn.jsx'
@@ -12,35 +11,69 @@ import useYouTubePlayer from './hooks/useYouTubePlayer.js'
 import useAuth from './hooks/useAuth.js'
 import './App.css'
 
-const DEFAULT_PLAYLIST = 'PLIg7BzY08KX0w83WPW6GPZJwxTcKhK4ya'
+const PLAYLIST_ID = 'PLIg7BzY08KX1Ld4RKd2qykQgFTZY0E830'
+
+const EXTRA_VIDEOS = [
+  { id: '5MzBxuUd7Qw' },
+  { id: '1VPNcgxysXc' },
+  { id: 'jazpviLhYBw' },
+  { id: '6bBoRwY0gmw' },
+  { id: 'FC8ZEahGiUI' },
+  { id: 'uueuSTVdk_c' },
+  { id: 'Rn7tjBOG1M4' },
+  { id: 'vXzbJ82EmpQ' },
+  { id: 'TV1lhGEhe90' },
+]
 
 export default function App() {
   const { user, loading: authLoading, error: authError, signIn, signUp, signOut, setAuthUser, pendingVerification, completeVerification } = useAuth()
   const hook = useYouTubePlayer()
-  const apiLoadedRef = useRef(false)
-  const fetchedRef = useRef(false)
   const [showPromo, setShowPromo] = useState(false)
   const [showSignIn, setShowSignIn] = useState(false)
   const [showWithdraw, setShowWithdraw] = useState(false)
+  const [showToc, setShowToc] = useState(false)
   const [withdrawSubmitting, setWithdrawSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
   const [welcomeMsg, setWelcomeMsg] = useState('')
   const [watchedMap, setWatchedMap] = useState({})
   const [videos, setVideos] = useState([])
 
-  const fetchPlaylist = useCallback(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    fetch(`/api/playlist/${DEFAULT_PLAYLIST}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.videos) {
-          hook.setPlaylistVideos(data.videos)
-          setVideos(data.videos)
+  useEffect(() => {
+    const seen = new Set()
+
+    Promise.all([
+      fetch(`/api/playlist/${PLAYLIST_ID}`).then(r => r.json()).catch(() => ({ videos: [] })),
+      ...EXTRA_VIDEOS.map(v =>
+        fetch(`/api/video/${v.id}`).then(r => r.json()).catch(() => ({}))
+      ),
+    ]).then(([playlist, ...extraResults]) => {
+      const merged = []
+
+      const playlistVids = playlist.videos || []
+      playlistVids.forEach(v => {
+        if (!seen.has(v.id)) {
+          seen.add(v.id)
+          merged.push(v)
         }
       })
-      .catch(() => {})
-  }, [hook.setPlaylistVideos])
+
+      EXTRA_VIDEOS.forEach((v, i) => {
+        if (!seen.has(v.id)) {
+          seen.add(v.id)
+          const info = extraResults[i]
+          merged.push({
+            ...v,
+            title: info?.title || `Video ${v.id}`,
+            duration: parseInt(info?.duration) || 0,
+          })
+        }
+      })
+
+      setVideos(merged)
+      hook.setPlaylistVideos(merged)
+      hook.loadPlaylist(PLAYLIST_ID, merged)
+    })
+  }, [hook.setPlaylistVideos, hook.loadPlaylist])
 
   const fetchWatched = useCallback(async (userId) => {
     try {
@@ -51,24 +84,6 @@ export default function App() {
       setWatchedMap({})
     }
   }, [])
-
-  useEffect(() => {
-    if (apiLoadedRef.current) return
-    if (window.YT && window.YT.loaded) {
-      apiLoadedRef.current = true
-      hook.loadPlaylist(DEFAULT_PLAYLIST)
-      fetchPlaylist()
-      return
-    }
-    apiLoadedRef.current = true
-    window.onYouTubeIframeAPIReady = () => {
-      hook.loadPlaylist(DEFAULT_PLAYLIST)
-      fetchPlaylist()
-    }
-    const tag = document.createElement('script')
-    tag.src = 'https://www.youtube.com/iframe_api'
-    document.head.appendChild(tag)
-  }, [hook.loadPlaylist, fetchPlaylist])
 
   useEffect(() => {
     if (user) {
@@ -87,16 +102,24 @@ export default function App() {
     }
   }, [user, fetchWatched, hook.restoreWatched])
 
-  const markWatched = useCallback(async (videoId, totalWatched) => {
+  const markWatched = useCallback(async (videoId, duration) => {
     if (!user) return
     const cumulativeTotal = hook.getCumulativeTotal()
     await fetch('/api/watched', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.userId, videoId, totalWatched, fullyWatched: true, cumulativeTotal }),
+      body: JSON.stringify({ userId: user.userId, videoId, totalWatched: duration, fullyWatched: true, cumulativeTotal }),
     })
-    setWatchedMap(prev => ({ ...prev, [videoId]: { totalWatched, fullyWatched: true } }))
+    setWatchedMap(prev => ({ ...prev, [videoId]: { totalWatched: duration, fullyWatched: true } }))
   }, [user, hook.getCumulativeTotal])
+
+  const handleYtWatched = useCallback((videoId, seconds) => {
+    if (!watchedMap[videoId] && seconds >= 10) {
+      hook.addWatchTime(seconds)
+      markWatched(videoId, seconds)
+      hook.setDuration(seconds)
+    }
+  }, [watchedMap, hook.addWatchTime, markWatched, hook.setDuration])
 
   const unwatchedCount = videos.filter(v => !watchedMap[v.id]).length
 
@@ -111,24 +134,6 @@ export default function App() {
     if (watchedHours >= t.minHours) currentTier = t
   }
   const earned = watchedHours * currentTier.rate
-
-  const pendingEndedRef = useRef(null)
-
-  useEffect(() => {
-    if (hook.lastEndedVideoId) {
-      pendingEndedRef.current = hook.lastEndedVideoId
-    }
-  }, [hook.lastEndedVideoId])
-
-  useEffect(() => {
-    const vid = pendingEndedRef.current
-    if (vid && !watchedMap[vid]) {
-      markWatched(vid, hook.duration)
-      pendingEndedRef.current = null
-    } else if (vid && watchedMap[vid]) {
-      pendingEndedRef.current = null
-    }
-  }, [watchedMap, hook.duration, markWatched])
 
   useEffect(() => {
     if (!user) return
@@ -241,7 +246,7 @@ export default function App() {
             <button className="refresh-btn" onClick={() => window.location.reload()} title="Refresh page">↻</button>
             <h1><span className="loader-ring-inline" /> RELAX MEDIA EARN PROMOTION / From youtube</h1>
           </div>
-          <p className="header-note">Watch time is only counted during normal playback. Skipping / scrubbing forward pauses counting.</p>
+          <p className="header-note">Watch each video on YouTube, then return to this tab to earn RFW automatically.</p>
           <div className="user-info">
             {user ? (
               <>
@@ -255,11 +260,11 @@ export default function App() {
             )}
           </div>
         </div>
-        {user && (
+        {user && videos.length > 0 && (
           <p className="unwatched-count">
             {unwatchedCount > 0
               ? `${unwatchedCount} unwatched video${unwatchedCount !== 1 ? 's' : ''} remaining — keep watching to earn!`
-              : 'You watched everything! Come back later for new videos.'}
+              : videos.length > 0 && 'You watched everything! Come back later for new videos.'}
           </p>
         )}
       </header>
@@ -275,26 +280,61 @@ export default function App() {
             playlistLength={hook.playlistLength}
             onNext={hook.nextVideo}
             onPrev={hook.prevVideo}
+            onYtWatched={handleYtWatched}
           />
-          <ActivityLog logs={hook.logs} />
           <a className="youtube-channel-link" href="https://www.youtube.com/@Kiliziya-vibes" target="_blank" rel="noopener noreferrer">
             <span className="youtube-channel-icon">▶</span>
             <span>Visit our YouTube Channel: <strong>@Kiliziya-vibes</strong></span>
           </a>
           <div className="how-it-works">
-            <div className="how-it-works-title">How It Works</div>
-            <div className="how-it-works-step"><span className="how-step-num">1</span>Watch YouTube videos from the playlist</div>
-            <div className="how-it-works-step"><span className="how-step-num">2</span>Earn RFW tokens based on watch time &amp; tier</div>
-            <div className="how-it-works-step"><span className="how-step-num">3</span>Higher tiers unlock better earning rates</div>
-            <div className="how-it-works-step"><span className="how-step-num">4</span>Withdraw your earnings after reaching the minimum</div>
+            <div className="how-it-works-title">How to Earn</div>
+            <div className="how-it-works-step"><span className="how-step-num">1</span>Click <strong>Watch on YouTube</strong> &mdash; video opens on YouTube in a new tab</div>
+            <div className="how-it-works-step"><span className="how-step-num">2</span>Watch the video on YouTube &mdash; every minute you're away counts</div>
+            <div className="how-it-works-step"><span className="how-step-num">3</span>Come back to this tab &mdash; your time away is credited automatically</div>
+            <div className="how-it-works-step"><span className="how-step-num">4</span>Watch all videos in the playlist, then <strong>Withdraw at 500 RFW</strong></div>
             <div className="how-tips">
-              <div className="how-tips-title">Tips</div>
-              <div className="how-tip">✓ Sign up and verify your email with the OTP code sent to you <span className="how-tip-spam">(check spam folder)</span></div>
-              <div className="how-tip">✓ Let the playlist run &mdash; watch time adds up automatically even in background</div>
-              <div className="how-tip">✓ Track your earnings live in the stats panel on the right</div>
-              <div className="how-tip">✓ Reach <strong>500 RFW</strong> minimum then click <strong>Withdraw</strong></div>
+              <div className="how-tips-title">Important</div>
+              <div className="how-tip">✓ Time away = watch credit. Stay on YouTube as long as the video to earn full credit</div>
+              <div className="how-tip">✓ Returning too early = less credit. Need at least 30% of the video to earn anything</div>
+              <div className="how-tip">✓ Sign up &amp; verify your email first <span className="how-tip-spam">(check spam for OTP)</span></div>
+              <div className="how-tip">✓ Track your total watch time &amp; earned RFW in the stats panel</div>
             </div>
           </div>
+          <div className="toc-toggle" onClick={() => setShowToc(!showToc)}>
+            {showToc ? '▾' : '▸'} Terms &amp; Conditions
+          </div>
+          {showToc && (
+            <div className="toc-content">
+              <p><strong>How It Works &amp; Rules</strong></p>
+              <ul>
+                <li><strong>Sign up</strong> with your email and verify via OTP (check spam folder).</li>
+                <li>Each video in the playlist can earn credit <strong>only once</strong> per account.</li>
+              </ul>
+              <p><strong>Earning Process</strong></p>
+              <ul>
+                <li>Click <strong>Watch on YouTube</strong> — the video opens on YouTube in a new tab.</li>
+                <li>Watch the video on YouTube. Every second you spend there is counted.</li>
+                <li>Come back to this tab. Your time away is credited automatically as watch time.</li>
+                <li>Credit = real time you were away, capped at the video's duration.</li>
+                <li><strong>Minimum:</strong> You must be away for at least 30% of the video length to earn anything. Returning too early = no credit.</li>
+                <li>Only the time the YouTube video tab is open counts. Closing YouTube early stops the timer.</li>
+              </ul>
+              <p><strong>Earnings &amp; Withdrawals</strong></p>
+              <ul>
+                <li>Watch time converts to RFW tokens based on your tier:
+                  <br/>Starter (0+ hrs) = 65 RFW/hr &nbsp;|&nbsp; Bronze (5+ hrs) = 80 RFW/hr &nbsp;|&nbsp; Silver (12+ hrs) = 100 RFW/hr</li>
+                <li><strong>Minimum withdrawal:</strong> 500 RFW.</li>
+                <li>Withdrawals are reviewed before processing.</li>
+              </ul>
+              <p><strong>Rules</strong></p>
+              <ul>
+                <li>No bots, automation, or fake activity. Violation = account ban + forfeited earnings.</li>
+                <li>One account per person. Duplicate accounts will be suspended.</li>
+                <li>RELAX MEDIA may update these terms at any time. Continued use means acceptance.</li>
+                <li>All earning and withdrawal decisions are final.</li>
+              </ul>
+            </div>
+          )}
         </div>
         <div className="side-col">
           <StatsPanel

@@ -129,25 +129,15 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
         </>
       )}
 
+      {duration > 0 && (
+        <div className="stat">
+          <span className="label">Video Duration:</span>
+          <span>{fmt(duration) + " /hrs"}</span>
+        </div>
+      )}
       <div className="stat">
-        <span className="label">Video Duration:</span>
-        <span>{fmt(duration) + " /hrs"}</span>
-      </div>
-      <div className="stat">
-        <span className="label">Watched (legit):</span>
+        <span className="label">Total Watched:</span>
         <span>{fmt(totalWatched)}</span>
-      </div>
-      <div className="stat">
-        <span className="label">Skipped time:</span>
-        <span>{fmt(totalSkipped)}</span>
-      </div>
-      <div className="stat">
-        <span className="label">Player status:</span>
-        <span>{status}</span>
-      </div>
-      <div className="stat">
-        <span className="label">Skip count:</span>
-        <span>{skipCount}</span>
       </div>
       <button className="promo-btn" onClick={onShowPromo}>View Promotions</button>
       <button className="withdraw-btn" onClick={() => {
