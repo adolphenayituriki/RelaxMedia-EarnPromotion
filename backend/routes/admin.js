@@ -4,7 +4,7 @@ import WatchedVideo from '../models/WatchedVideo.js'
 import Withdraw from '../models/Withdraw.js'
 import RewardClaim from '../models/RewardClaim.js'
 import Comment from '../models/Comment.js'
-import { ADMIN_EMAIL, generateUserId, hashPassword } from '../shared.js'
+import { ADMIN_EMAIL, generateUserId, hashPassword, calcEarnings } from '../shared.js'
 
 const router = Router()
 
@@ -71,7 +71,7 @@ router.get('/users', async (req, res) => {
         email: u.email,
         userId: u.userId,
         totalWatched: u.totalWatched,
-        earned: u.earned ?? 0,
+        earned: calcEarnings(u.totalWatched || 0),
         verified: u.verified,
         totalWithdrawn,
         createdAt: u.createdAt,

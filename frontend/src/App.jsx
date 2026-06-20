@@ -283,6 +283,20 @@ export default function App() {
             <span className="youtube-channel-icon">▶</span>
             <span>Visit our YouTube Channel: <strong>@Kiliziya-vibes</strong></span>
           </a>
+          <div className="how-it-works">
+            <div className="how-it-works-title">How It Works</div>
+            <div className="how-it-works-step"><span className="how-step-num">1</span>Watch YouTube videos from the playlist</div>
+            <div className="how-it-works-step"><span className="how-step-num">2</span>Earn RFW tokens based on watch time &amp; tier</div>
+            <div className="how-it-works-step"><span className="how-step-num">3</span>Higher tiers unlock better earning rates</div>
+            <div className="how-it-works-step"><span className="how-step-num">4</span>Withdraw your earnings after reaching the minimum</div>
+            <div className="how-tips">
+              <div className="how-tips-title">Tips</div>
+              <div className="how-tip">✓ Sign up and verify your email with the OTP code sent to you <span className="how-tip-spam">(check spam folder)</span></div>
+              <div className="how-tip">✓ Let the playlist run &mdash; watch time adds up automatically even in background</div>
+              <div className="how-tip">✓ Track your earnings live in the stats panel on the right</div>
+              <div className="how-tip">✓ Reach <strong>500 RFW</strong> minimum then click <strong>Withdraw</strong></div>
+            </div>
+          </div>
         </div>
         <div className="side-col">
           <StatsPanel

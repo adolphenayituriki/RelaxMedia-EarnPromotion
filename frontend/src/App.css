@@ -198,23 +198,23 @@ header p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 16px;
-  padding: 16px;
+  gap: 2px;
+  margin-bottom: 10px;
+  padding: 10px;
   background: linear-gradient(135deg, #1a2a1a, #0f1f0f);
   border: 1px solid #00c853;
   border-radius: 12px;
 }
 
 .earnings-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #00c853;
   letter-spacing: 2px;
 }
 
 .earnings-amount {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #00e676;
   font-variant-numeric: tabular-nums;
@@ -222,13 +222,13 @@ header p {
 }
 
 .earnings-unit {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #00c853;
   font-weight: 600;
 }
 
 .earnings-rate {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #aaa;
   font-weight: 600;
 }
@@ -236,14 +236,14 @@ header p {
 .earnings-tier-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 2px;
+  gap: 6px;
+  margin-top: 0;
 }
 
 .earnings-tier-badge {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 1px 6px;
   border-radius: 4px;
   letter-spacing: 1px;
 }
@@ -264,9 +264,9 @@ header p {
 }
 
 .earnings-next {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #666;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .earnings-login-prompt {
@@ -274,29 +274,29 @@ header p {
 }
 
 .earnings-login-msg {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #888;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .stats-section {
   background: #1a1a1a;
   border-radius: 12px;
-  padding: 20px;
+  padding: 12px;
 }
 
 .stats-section h2 {
-  font-size: 1.1rem;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #333;
 }
 
 .stat {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  font-size: 0.9rem;
+  padding: 3px 0;
+  font-size: 0.85rem;
 }
 
 .stat .label {
@@ -309,7 +309,7 @@ header p {
 }
 
 .playlist-stat span:last-child {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .video-title {
@@ -321,13 +321,13 @@ header p {
 }
 
 .progress-container {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid #333;
 }
 
 .progress-bar {
-  height: 24px;
+  height: 16px;
   background: #333;
   border-radius: 6px;
   overflow: hidden;
@@ -475,13 +475,13 @@ header p {
 
 .promo-btn {
   width: 100%;
-  margin-bottom: 16px;
-  padding: 10px;
+  margin-bottom: 8px;
+  padding: 8px;
   background: linear-gradient(135deg, #2a1a1a, #1a0f0f);
   border: 1px solid #f00;
   border-radius: 8px;
   color: #f00;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
@@ -915,24 +915,24 @@ header p {
   }
 
   .stats-section {
-    padding: 14px;
+    padding: 10px;
   }
 
   .stats-section h2 {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .earnings-amount {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
 
   .earnings-box {
-    padding: 12px;
+    padding: 8px;
   }
 
   .stat {
-    font-size: 0.8rem;
-    padding: 6px 0;
+    font-size: 0.7rem;
+    padding: 2px 0;
   }
 
   .video-title {
@@ -1602,12 +1602,12 @@ header p {
 .withdraw-btn {
   width: 100%;
   margin-top: 8px;
-  padding: 12px;
+  padding: 8px;
   background: linear-gradient(135deg, #1a3a1a, #0f2a0f);
   border: 1px solid #00c853;
   border-radius: 8px;
   color: #00e676;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
@@ -2193,4 +2193,73 @@ header p {
   gap: 10px;
   margin-top: 20px;
   justify-content: flex-end;
+}
+
+.how-it-works {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  color: #ccc;
+  font-size: 0.85rem;
+}
+
+.how-it-works-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e8b830;
+  margin-bottom: 12px;
+}
+
+.how-it-works-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  line-height: 1.4;
+}
+
+.how-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e8b830;
+  color: #111;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.how-tips {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+
+.how-tips-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #00c853;
+  margin-bottom: 6px;
+}
+
+.how-tip {
+  font-size: 0.8rem;
+  color: #aaa;
+  padding: 3px 0;
+  line-height: 1.4;
+}
+
+.how-tip strong {
+  color: #00e676;
+}
+
+.how-tip-spam {
+  color: #ffa726;
+  font-style: italic;
+  font-size: 0.75rem;
 }
