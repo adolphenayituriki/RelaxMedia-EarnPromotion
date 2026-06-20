@@ -43,8 +43,6 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
   const [historyOpen, setHistoryOpen] = useState(false)
   const [minWithdrawMsg, setMinWithdrawMsg] = useState('')
 
-  if (!duration || !currentVideo?.id) return null
-
   return (
     <div className="stats-section">
       <h2>Watch Statistics</h2>
