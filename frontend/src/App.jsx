@@ -27,11 +27,6 @@ export default function App() {
   const [welcomeMsg, setWelcomeMsg] = useState('')
   const [watchedMap, setWatchedMap] = useState({})
   const [videos, setVideos] = useState([])
-  const [ytConfirmMap, setYtConfirmMap] = useState({})
-
-  const handleYtConfirm = useCallback((videoId) => {
-    setYtConfirmMap(prev => ({ ...prev, [videoId]: true }))
-  }, [])
 
   const fetchPlaylist = useCallback(() => {
     if (fetchedRef.current) return
@@ -280,8 +275,6 @@ export default function App() {
             playlistLength={hook.playlistLength}
             onNext={hook.nextVideo}
             onPrev={hook.prevVideo}
-            ytConfirmMap={ytConfirmMap}
-            onYtConfirm={handleYtConfirm}
           />
           <ActivityLog logs={hook.logs} />
           <a className="youtube-channel-link" href="https://www.youtube.com/@Kiliziya-vibes" target="_blank" rel="noopener noreferrer">

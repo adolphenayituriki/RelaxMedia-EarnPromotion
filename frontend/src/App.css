@@ -58,7 +58,6 @@ header h1 {
 }
 
 .player-section {
-  position: relative;
   background: #1a1a1a;
   border-radius: 12px;
   padding: 16px;
@@ -139,79 +138,6 @@ header h1 {
 
 .input-row button:hover {
   background: #cc0000;
-}
-
-.yt-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.85);
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
-.yt-overlay-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 24px;
-  max-width: 400px;
-  text-align: center;
-}
-
-.yt-overlay-thumb {
-  width: 100%;
-  max-width: 320px;
-  border-radius: 8px;
-  border: 1px solid #333;
-}
-
-.yt-overlay-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.yt-overlay-title {
-  font-size: 0.95rem;
-  color: #eee;
-  line-height: 1.3;
-}
-
-.yt-overlay-note {
-  font-size: 0.8rem;
-  color: #aaa;
-  line-height: 1.4;
-}
-
-.yt-overlay-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background: #f00;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s;
-  margin-top: 4px;
-}
-
-.yt-overlay-btn:hover {
-  background: #cc0000;
-  box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
-}
-
-.yt-overlay-btn-icon {
-  font-size: 0.8rem;
 }
 
 .yt-watch-btn {
