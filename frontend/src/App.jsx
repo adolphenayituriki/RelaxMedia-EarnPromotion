@@ -332,6 +332,7 @@ export default function App() {
                 <li>One account per person. Duplicate accounts will be suspended.</li>
                 <li>RELAX MEDIA may update these terms at any time. Continued use means acceptance.</li>
                 <li>All earning and withdrawal decisions are final.</li>
+                <li><strong>Disclaimer:</strong> This site is not affiliated with, endorsed by, or sponsored by YouTube or Google. All video content belongs to their respective creators.</li>
               </ul>
             </div>
           )}
