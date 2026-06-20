@@ -34,6 +34,7 @@ export default function useAuth() {
       }
       if (data.needOtp) {
         setPendingVerification(data.email)
+        if (data.emailSent === false) setError('Failed to send verification email. Check server logs for the code or try again.')
         return false
       }
       setPendingVerification(null)

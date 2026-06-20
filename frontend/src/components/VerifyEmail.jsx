@@ -42,6 +42,8 @@ export default function VerifyEmail({ email, onVerified, onCancel }) {
       const data = await res.json()
       if (data.error) {
         setError(data.error)
+      } else if (data.emailSent === false) {
+        setMessage('Code generated (check server console) — email sending failed')
       } else {
         setMessage('New code sent to your email')
       }
@@ -60,7 +62,7 @@ export default function VerifyEmail({ email, onVerified, onCancel }) {
           <button className="signin-close" onClick={onCancel}>✕</button>
         </div>
         <p className="signin-desc">
-          A 6-digit code was sent to <strong>{email}</strong>. Enter it below to complete login.
+          A 6-digit code was sent to <strong>{email}</strong>. If you don't see it, check spam or click <strong>Resend Code</strong>.
         </p>
         <form onSubmit={handleSubmit}>
           <input
