@@ -1322,6 +1322,28 @@ header p {
   color: #aaa;
 }
 
+.refresh-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 50%;
+  color: #aaa;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.refresh-btn:hover {
+  background: #333;
+  color: #fff;
+  border-color: #f00;
+}
+
 .login-btn {
   padding: 8px 20px;
   background: #f00;
