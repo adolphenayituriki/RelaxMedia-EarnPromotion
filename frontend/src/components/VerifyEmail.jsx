@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-export default function VerifyEmail({ email, onVerified, onCancel }) {
-  const [code, setCode] = useState('')
+export default function VerifyEmail({ email, onVerified, onCancel, devCode }) {
+  const [code, setCode] = useState(devCode || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(devCode ? 'Email unavailable — using fallback code below' : '')
 
   const handleSubmit = async (e) => {
     e.preventDefault()

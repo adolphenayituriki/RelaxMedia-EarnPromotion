@@ -270,7 +270,8 @@ export default function App() {
 
       {pendingVerification && (
         <VerifyEmail
-          email={pendingVerification}
+          email={pendingVerification.email}
+          devCode={pendingVerification.devCode}
           onVerified={(data) => {
             setAuthUser(data)
             completeVerification()

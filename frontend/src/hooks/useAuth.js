@@ -33,8 +33,8 @@ export default function useAuth() {
         return false
       }
       if (data.needOtp) {
-        setPendingVerification(data.email)
-        if (data.emailSent === false) setError('Failed to send verification email. Check server logs for the code or try again.')
+        setPendingVerification({ email: data.email, devCode: data.devCode || null })
+        if (data.emailSent === false) setError('Email delivery failed — using fallback code')
         return false
       }
       setPendingVerification(null)
