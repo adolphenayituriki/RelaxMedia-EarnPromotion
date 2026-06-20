@@ -297,7 +297,7 @@ export default function App() {
             completeVerification()
             setShowSignIn(false)
             setSuccessMsg('Successfully logged in!')
-            setTimeout(() => setSuccessMsg(''), 3000)
+            setTimeout(() => window.location.reload(), 1500)
           }}
           onCancel={() => completeVerification()}
         />
