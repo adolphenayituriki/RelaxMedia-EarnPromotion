@@ -279,6 +279,10 @@ export default function App() {
             onPrev={hook.prevVideo}
           />
           <ActivityLog logs={hook.logs} />
+          <a className="youtube-channel-link" href="https://www.youtube.com/@Kiliziya-vibes" target="_blank" rel="noopener noreferrer">
+            <span className="youtube-channel-icon">▶</span>
+            <span>Visit our YouTube Channel: <strong>@Kiliziya-vibes</strong></span>
+          </a>
         </div>
         <div className="side-col">
           <StatsPanel
