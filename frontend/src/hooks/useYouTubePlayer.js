@@ -318,6 +318,7 @@ export default function useYouTubePlayer() {
     clearEndedFlag,
     restoreWatched,
     getCumulativeTotal,
+    resetState,
     status,
     duration,
     totalWatched,

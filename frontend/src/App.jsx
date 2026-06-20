@@ -148,6 +148,15 @@ export default function App() {
     await signUp(fullName, email, password)
   }
 
+  const handleSignOut = () => {
+    const total = hook.getCumulativeTotal()
+    if (total > 0) {
+      navigator.sendBeacon('/api/earnings', JSON.stringify({ userId: user.userId, totalSeconds: total }))
+    }
+    hook.resetState()
+    signOut()
+  }
+
   const [withdrawInfo, setWithdrawInfo] = useState(null)
 
   useEffect(() => {
@@ -199,7 +208,7 @@ export default function App() {
   }
 
   if (user?.isAdmin) {
-    return <AdminDashboard user={user} onSignOut={signOut} />
+    return <AdminDashboard user={user} onSignOut={handleSignOut} />
   }
 
   return (
@@ -214,7 +223,7 @@ export default function App() {
             {user ? (
               <>
                 <span className="user-email">{user.fullName || user.email}</span>
-                <button className="signout-btn" onClick={signOut}>Sign Out</button>
+                <button className="signout-btn" onClick={handleSignOut}>Sign Out</button>
               </>
             ) : (
               <button className="login-btn" onClick={() => setShowSignIn(true)}>
