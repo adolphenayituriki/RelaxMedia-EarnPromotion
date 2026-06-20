@@ -843,12 +843,12 @@ header p {
     display: contents;
   }
 
-  .player-section { order: 1; }
-  .log-section { order: 2; }
-  .stats-section { order: 3; }
-  .youtube-channel-link { order: 4; }
-  .how-it-works { order: 5; }
-  .sidebar { order: 6; }
+  .player-section { order: 1; width: 100%; }
+  .log-section { order: 2; width: 100%; }
+  .stats-section { order: 3; width: 100%; }
+  .youtube-channel-link { order: 4; width: 100%; }
+  .how-it-works { order: 5; width: 100%; }
+  .sidebar { order: 6; width: 100%; }
 
   .side-col {
     max-height: none;
