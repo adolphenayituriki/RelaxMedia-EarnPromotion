@@ -1,12 +1,16 @@
-import sgMail from '@sendgrid/mail'
+import nodemailer from 'nodemailer'
 import crypto from 'crypto'
 
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
-const FROM_EMAIL = process.env.FROM_EMAIL || process.env.OTP_EMAIL || 'www.nayituriki.com@gmail.com'
-
-if (SENDGRID_API_KEY) {
-  sgMail.setApiKey(SENDGRID_API_KEY)
-}
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.OTP_EMAIL || process.env.ADMIN_EMAIL,
+    pass: process.env.OTP_PASSWORD,
+  },
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
+})
 
 export function generateCode() {
   return crypto.randomInt(100000, 999999).toString()
@@ -14,13 +18,13 @@ export function generateCode() {
 
 export async function sendVerificationEmail(to, code) {
   console.log(`[DEV] Verification code for ${to}: ${code}`)
-  if (!SENDGRID_API_KEY) {
-    console.log('[EMAIL] SENDGRID_API_KEY not set — code only printed to console')
+  if (!process.env.OTP_PASSWORD) {
+    console.log('[EMAIL] OTP_PASSWORD not set — code only printed to console')
     return false
   }
   try {
-    await sgMail.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: `"Relax Media" <${process.env.OTP_EMAIL || process.env.ADMIN_EMAIL}>`,
       to,
       subject: 'Your verification code - Relax Media',
       html: `
@@ -34,7 +38,6 @@ export async function sendVerificationEmail(to, code) {
     return true
   } catch (err) {
     console.error(`[EMAIL] Failed to send to ${to}: ${err.message}`)
-    if (err.response) console.error('[EMAIL] Response:', err.response.body)
     return false
   }
 }

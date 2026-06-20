@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node -e \"const{spawn}=require('child_process');const b=spawn('node',['server.js'],{cwd:'backend',stdio:'inherit'});const f=spawn('npx',['vite'],{cwd:'frontend',stdio:'inherit',shell:true});process.on('SIGINT',()=>{b.kill();f.kill();process.exit()})\"",
+    "dev": "node -e \"const{spawn}=require('child_process');const b=spawn('node',['--use-system-ca','server.js'],{cwd:'backend',stdio:'inherit'});const f=spawn('npx',['vite'],{cwd:'frontend',stdio:'inherit',shell:true});process.on('SIGINT',()=>{b.kill();f.kill();process.exit()})\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "install:all": "cd backend && npm install && cd ../frontend && npm install"

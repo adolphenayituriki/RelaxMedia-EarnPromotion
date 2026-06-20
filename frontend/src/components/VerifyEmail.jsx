@@ -4,7 +4,7 @@ export default function VerifyEmail({ email, onVerified, onCancel, devCode }) {
   const [code, setCode] = useState(devCode || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState(devCode ? 'Email unavailable — using fallback code below' : '')
+  const [message, setMessage] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
