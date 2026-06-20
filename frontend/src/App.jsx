@@ -279,21 +279,6 @@ export default function App() {
             onPrev={hook.prevVideo}
           />
           <ActivityLog logs={hook.logs} />
-          <StatsPanel
-            duration={hook.duration}
-            totalWatched={hook.totalWatched}
-            totalSkipped={hook.totalSkipped}
-            skipCount={hook.skipCount}
-            status={hook.status}
-            isPlaylist={hook.isPlaylist}
-            currentVideo={hook.currentVideo}
-            playlistLength={hook.playlistLength}
-            onShowPromo={() => setShowPromo(true)}
-            onWithdraw={() => setShowWithdraw(true)}
-            user={user}
-            earned={earned}
-            withdrawInfo={withdrawInfo}
-          />
           <a className="youtube-channel-link" href="https://www.youtube.com/@Kiliziya-vibes" target="_blank" rel="noopener noreferrer">
             <span className="youtube-channel-icon">▶</span>
             <span>Visit our YouTube Channel: <strong>@Kiliziya-vibes</strong></span>
@@ -314,6 +299,21 @@ export default function App() {
           </div>
         </div>
         <div className="side-col">
+          <StatsPanel
+            duration={hook.duration}
+            totalWatched={hook.totalWatched}
+            totalSkipped={hook.totalSkipped}
+            skipCount={hook.skipCount}
+            status={hook.status}
+            isPlaylist={hook.isPlaylist}
+            currentVideo={hook.currentVideo}
+            playlistLength={hook.playlistLength}
+            onShowPromo={() => setShowPromo(true)}
+            onWithdraw={() => setShowWithdraw(true)}
+            user={user}
+            earned={earned}
+            withdrawInfo={withdrawInfo}
+          />
           <PlaylistSidebar
             videos={hook.playlistVideos}
             currentIndex={hook.currentVideo.index}

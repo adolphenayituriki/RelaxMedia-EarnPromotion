@@ -835,8 +835,20 @@ header p {
 
 @media (max-width: 900px) {
   .main-layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
+
+  .player-col, .side-col {
+    display: contents;
+  }
+
+  .player-section { order: 1; }
+  .log-section { order: 2; }
+  .stats-section { order: 3; }
+  .youtube-channel-link { order: 4; }
+  .how-it-works { order: 5; }
+  .sidebar { order: 6; }
 
   .side-col {
     max-height: none;
