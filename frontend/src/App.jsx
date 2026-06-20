@@ -15,7 +15,7 @@ import './App.css'
 const DEFAULT_PLAYLIST = 'PLIg7BzY08KX0w83WPW6GPZJwxTcKhK4ya'
 
 export default function App() {
-  const { user, loading: authLoading, error: authError, signIn, signOut, setAuthUser, pendingVerification, completeVerification } = useAuth()
+  const { user, loading: authLoading, error: authError, signIn, signUp, signOut, setAuthUser, pendingVerification, completeVerification } = useAuth()
   const hook = useYouTubePlayer()
   const apiLoadedRef = useRef(false)
   const fetchedRef = useRef(false)
@@ -23,6 +23,7 @@ export default function App() {
   const [showSignIn, setShowSignIn] = useState(false)
   const [showWithdraw, setShowWithdraw] = useState(false)
   const [withdrawSubmitting, setWithdrawSubmitting] = useState(false)
+  const [successMsg, setSuccessMsg] = useState('')
   const [watchedMap, setWatchedMap] = useState({})
   const [videos, setVideos] = useState([])
 
@@ -143,6 +144,10 @@ export default function App() {
     return ok
   }
 
+  const handleSignUp = async (fullName, email, password) => {
+    await signUp(fullName, email, password)
+  }
+
   const [withdrawInfo, setWithdrawInfo] = useState(null)
 
   useEffect(() => {
@@ -208,7 +213,7 @@ export default function App() {
           <div className="user-info">
             {user ? (
               <>
-                <span className="user-email">{user.email}</span>
+                <span className="user-email">{user.fullName || user.email}</span>
                 <button className="signout-btn" onClick={signOut}>Sign Out</button>
               </>
             ) : (
@@ -221,11 +226,13 @@ export default function App() {
         {user && (
           <p className="unwatched-count">
             {unwatchedCount > 0
-              ? `${unwatchedCount} unwatched video${unwatchedCount !== 1 ? 's' : ''} remaining`
-              : 'All videos watched — no more earnings available'}
+              ? `${unwatchedCount} unwatched video${unwatchedCount !== 1 ? 's' : ''} remaining — keep watching to earn!`
+              : 'You watched everything! Come back later for new videos.'}
           </p>
         )}
       </header>
+
+      {successMsg && <div className="toast-success">{successMsg}</div>}
 
       <div className="main-layout">
         <div className="player-col">
@@ -265,7 +272,7 @@ export default function App() {
       </div>
 
       {showSignIn && !pendingVerification && (
-        <SignIn onSignIn={handleSignIn} loading={authLoading} error={authError} onClose={() => setShowSignIn(false)} />
+        <SignIn onSignIn={handleSignIn} onSignUp={handleSignUp} loading={authLoading} error={authError} onClose={() => setShowSignIn(false)} />
       )}
 
       {pendingVerification && (
@@ -274,6 +281,9 @@ export default function App() {
           onVerified={(data) => {
             setAuthUser(data)
             completeVerification()
+            setShowSignIn(false)
+            setSuccessMsg('Successfully logged in!')
+            setTimeout(() => setSuccessMsg(''), 3000)
           }}
           onCancel={() => completeVerification()}
         />

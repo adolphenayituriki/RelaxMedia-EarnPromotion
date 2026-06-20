@@ -982,6 +982,21 @@ header p {
   cursor: not-allowed;
 }
 
+.toggle-auth-mode {
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: #cc0000;
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 100%;
+  text-align: center;
+}
+
+.toggle-auth-mode:hover {
+  text-decoration: underline;
+}
+
 .header-top {
   display: flex;
   justify-content: space-between;
@@ -1048,6 +1063,27 @@ header p {
 
 .sidebar-item.watched:hover {
   background: #222;
+}
+
+.toast-success {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #00c853;
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0,200,83,0.3);
+  animation: toastIn 0.3s ease;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .loading-screen {

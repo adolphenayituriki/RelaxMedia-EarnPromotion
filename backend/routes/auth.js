@@ -8,6 +8,60 @@ const router = Router()
 
 /**
  * @openapi
+ * /api/auth/signup:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Create a new account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Account created
+ *       400:
+ *         description: Email already exists
+ */
+router.post('/signup', async (req, res) => {
+  try {
+    const { fullName, email, password } = req.body
+    if (!email) return res.status(400).json({ error: 'Email is required' })
+    if (!password) return res.status(400).json({ error: 'Password is required' })
+
+    const cleanEmail = email.toLowerCase().trim()
+    const existing = await User.findOne({ email: cleanEmail })
+    if (existing) return res.status(400).json({ error: 'Email already registered' })
+
+    const code = generateCode()
+    const user = await User.create({
+      fullName: (fullName || '').trim(),
+      email: cleanEmail,
+      userId: generateUserId(),
+      passwordHash: hashPassword(password),
+      verified: false,
+      verificationCode: code,
+      verificationCodeExpires: new Date(Date.now() + 600000),
+    })
+    const sent = await sendVerificationEmail(cleanEmail, code)
+
+    res.status(201).json({ needOtp: true, email: cleanEmail, emailSent: sent })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+/**
+ * @openapi
  * /api/auth/signin:
  *   post:
  *     tags: [Auth]
@@ -60,30 +114,16 @@ router.post('/signin', async (req, res) => {
     }
 
     let user = await User.findOne({ email: cleanEmail })
+    if (!user) return res.status(400).json({ error: 'No account found. Please sign up first.' })
 
-    if (user) {
-      if (!verifyPassword(password, user.passwordHash)) {
-        return res.status(401).json({ error: 'Invalid password' })
-      }
-      const code = generateCode()
-      user.verificationCode = code
-      user.verificationCodeExpires = new Date(Date.now() + 600000)
-      await user.save()
-      const sent = await sendVerificationEmail(cleanEmail, code)
-      return res.json({ needOtp: true, email: cleanEmail, emailSent: sent })
+    if (!verifyPassword(password, user.passwordHash)) {
+      return res.status(401).json({ error: 'Invalid password' })
     }
-
     const code = generateCode()
-    user = await User.create({
-      email: cleanEmail,
-      userId: generateUserId(),
-      passwordHash: hashPassword(password),
-      verified: false,
-      verificationCode: code,
-      verificationCodeExpires: new Date(Date.now() + 600000),
-    })
+    user.verificationCode = code
+    user.verificationCodeExpires = new Date(Date.now() + 600000)
+    await user.save()
     const sent = await sendVerificationEmail(cleanEmail, code)
-
     res.json({ needOtp: true, email: cleanEmail, emailSent: sent })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -129,7 +169,7 @@ router.post('/verify-email', async (req, res) => {
     user.verificationCodeExpires = null
     await user.save()
 
-    res.json({ userId: user.userId, email: user.email, isAdmin: false })
+    res.json({ userId: user.userId, email: user.email, fullName: user.fullName || '', isAdmin: false })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

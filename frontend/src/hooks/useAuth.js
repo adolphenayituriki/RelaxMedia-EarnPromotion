@@ -18,6 +18,34 @@ export default function useAuth() {
     setLoading(false)
   }, [])
 
+  const signUp = useCallback(async (fullName, email, password) => {
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, password }),
+      })
+      const data = await res.json()
+      if (data.error) {
+        setError(data.error)
+        return false
+      }
+      if (data.needOtp) {
+        setPendingVerification(data.email)
+        if (data.emailSent === false) setError('Failed to send verification email')
+        return false
+      }
+      return false
+    } catch {
+      setError('Failed to sign up. Is the server running?')
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   const signIn = useCallback(async (email, password) => {
     setError('')
     setLoading(true)
@@ -61,10 +89,10 @@ export default function useAuth() {
   }, [])
 
   const setAuthUser = useCallback((data) => {
-    const userData = { userId: data.userId, email: data.email, isAdmin: data.isAdmin || false }
+    const userData = { userId: data.userId, email: data.email, fullName: data.fullName || '', isAdmin: data.isAdmin || false }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
     setUser(userData)
   }, [])
 
-  return { user, loading, error, signIn, signOut, pendingVerification, completeVerification, setAuthUser }
+  return { user, loading, error, signIn, signUp, signOut, pendingVerification, completeVerification, setAuthUser }
 }

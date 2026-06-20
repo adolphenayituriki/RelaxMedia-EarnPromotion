@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-export default function VerifyEmail({ email, onVerified, onCancel, devCode }) {
-  const [code, setCode] = useState(devCode || '')
+export default function VerifyEmail({ email, onVerified, onCancel }) {
+  const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
