@@ -65,15 +65,12 @@ router.post('/signin', async (req, res) => {
       if (!verifyPassword(password, user.passwordHash)) {
         return res.status(401).json({ error: 'Invalid password' })
       }
-      if (!user.verified) {
-        const code = generateCode()
-        user.verificationCode = code
-        user.verificationCodeExpires = new Date(Date.now() + 600000)
-        await user.save()
-        sendVerificationEmail(cleanEmail, code)
-        return res.json({ verified: false, email: cleanEmail })
-      }
-      return res.json({ userId: user.userId, email: user.email, isAdmin: false })
+      const code = generateCode()
+      user.verificationCode = code
+      user.verificationCodeExpires = new Date(Date.now() + 600000)
+      await user.save()
+      sendVerificationEmail(cleanEmail, code)
+      return res.json({ needOtp: true, email: cleanEmail })
     }
 
     const code = generateCode()
@@ -87,7 +84,7 @@ router.post('/signin', async (req, res) => {
     })
     sendVerificationEmail(cleanEmail, code)
 
-    res.json({ verified: false, email: cleanEmail })
+    res.json({ needOtp: true, email: cleanEmail })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -124,7 +121,6 @@ router.post('/verify-email', async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase().trim() })
     if (!user) return res.status(400).json({ error: 'User not found' })
-    if (user.verified) return res.json({ userId: user.userId, email: user.email, isAdmin: false })
     if (user.verificationCode !== code) return res.status(400).json({ error: 'Invalid verification code' })
     if (user.verificationCodeExpires < new Date()) return res.status(400).json({ error: 'Verification code expired' })
 
@@ -166,7 +162,6 @@ router.post('/resend-code', async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase().trim() })
     if (!user) return res.status(400).json({ error: 'User not found' })
-    if (user.verified) return res.json({ message: 'Already verified' })
 
     const code = generateCode()
     user.verificationCode = code

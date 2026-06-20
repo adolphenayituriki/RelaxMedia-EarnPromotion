@@ -56,12 +56,11 @@ export default function VerifyEmail({ email, onVerified, onCancel }) {
     <div className="signin-overlay" onClick={onCancel}>
       <div className="signin-modal" onClick={e => e.stopPropagation()}>
         <div className="signin-modal-header">
-          <h2>Verify Email</h2>
+          <h2>Enter Verification Code</h2>
           <button className="signin-close" onClick={onCancel}>✕</button>
         </div>
         <p className="signin-desc">
-          A 6-digit verification code was sent to <strong>{email}</strong>.
-          {!navigator.userAgent.includes('Chrome') && ''}
+          A 6-digit code was sent to <strong>{email}</strong>. Enter it below to complete login.
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -77,7 +76,7 @@ export default function VerifyEmail({ email, onVerified, onCancel }) {
             autoFocus
           />
           <button type="submit" disabled={loading || code.length !== 6}>
-            {loading ? 'Verifying...' : 'Verify Email'}
+            {loading ? 'Verifying...' : 'Submit'}
           </button>
         </form>
         <button className="resend-btn" onClick={handleResend} disabled={loading}>

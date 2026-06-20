@@ -32,7 +32,7 @@ export default function useAuth() {
         setError(data.error)
         return false
       }
-      if (data.verified === false) {
+      if (data.needOtp) {
         setPendingVerification(data.email)
         return false
       }
