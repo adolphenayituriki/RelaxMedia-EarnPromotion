@@ -3,7 +3,10 @@ import { useEffect, useState } from 'react'
 function fmt(s) {
   const h = Math.floor(s / 3600)
   const m = Math.floor((s % 3600) / 60)
-  return h > 0 ? `${h}h ${m}m` : `${m}m`
+  const sec = Math.floor(s % 60)
+  if (h > 0) return `${h}h ${m}m ${sec}s`
+  if (m > 0) return `${m}m ${sec}s`
+  return `${sec}s`
 }
 
 function fmtDate(d) {
