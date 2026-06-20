@@ -24,6 +24,7 @@ export default function App() {
   const [showWithdraw, setShowWithdraw] = useState(false)
   const [withdrawSubmitting, setWithdrawSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
+  const [welcomeMsg, setWelcomeMsg] = useState('')
   const [watchedMap, setWatchedMap] = useState({})
   const [videos, setVideos] = useState([])
 
@@ -77,6 +78,9 @@ export default function App() {
         .then(data => {
           if (data.totalSeconds > 0) {
             hook.restoreWatched(data.totalSeconds)
+            const hrs = (data.totalSeconds / 3600).toFixed(1)
+            setWelcomeMsg(`Welcome back${user.fullName ? ' ' + user.fullName : ''}! ${hrs}h watched, ${data.earned.toFixed(2)} RFW earned.`)
+            setTimeout(() => setWelcomeMsg(''), 4000)
           }
         })
         .catch(() => {})
@@ -242,6 +246,7 @@ export default function App() {
       </header>
 
       {successMsg && <div className="toast-success">{successMsg}</div>}
+      {welcomeMsg && <div className="toast-info">{welcomeMsg}</div>}
 
       <div className="main-layout">
         <div className="player-col">
