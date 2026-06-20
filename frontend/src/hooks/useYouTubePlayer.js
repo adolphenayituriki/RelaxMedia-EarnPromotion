@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 const SKIP_THRESHOLD = 2
 const SAMPLE_INTERVAL = 1000
@@ -35,6 +35,7 @@ export default function useYouTubePlayer() {
   const watchedSecondsRef = useRef(new Map())
   const currentVideoIdRef = useRef('')
   const lastEndedRef = useRef('')
+  const hiddenRef = useRef(false)
 
   const addLog = useCallback((msg) => {
     const t = `[${new Date().toLocaleTimeString()}] ${msg}`
@@ -71,6 +72,45 @@ export default function useYouTubePlayer() {
     return newCount
   }
 
+  // Catch up watch time when tab comes back from background
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        hiddenRef.current = true
+        return
+      }
+
+      const p = playerRef.current
+      if (!p || !readyRef.current) return
+
+      hiddenRef.current = false
+      const prevState = lastStateRef.current
+      const now = p.getCurrentTime()
+
+      if (prevState === YT.PlayerState.PLAYING) {
+        const state = p.getPlayerState()
+        if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.BUFFERING) {
+          p.playVideo()
+        }
+
+        if (now > lastTimeRef.current) {
+          const vid = currentVideoIdRef.current
+          if (vid) {
+            const unique = countUniqueSeconds(vid, lastTimeRef.current, now)
+            watchedRef.current += unique
+            setTotalWatched(baseWatchedRef.current + watchedRef.current)
+            addLog(`Tab resumed: +${unique}s while away`)
+          }
+        }
+      }
+
+      lastTimeRef.current = p.getCurrentTime()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [addLog])
+
   const sample = useCallback(() => {
     const p = playerRef.current
     if (!p || !readyRef.current) return
@@ -85,6 +125,11 @@ export default function useYouTubePlayer() {
       if (delta >= 0 && delta <= SKIP_THRESHOLD + 0.5) {
         const unique = countUniqueSeconds(vid, lastTimeRef.current, now)
         watchedRef.current += unique
+      } else if (delta > SKIP_THRESHOLD + 0.5 && hiddenRef.current) {
+        const unique = countUniqueSeconds(vid, lastTimeRef.current, now)
+        watchedRef.current += unique
+        hiddenRef.current = false
+        addLog(`Background catch-up: +${unique}s (was away ${delta.toFixed(1)}s)`)
       } else if (delta > SKIP_THRESHOLD + 0.5) {
         const end = lastTimeRef.current + SKIP_THRESHOLD + 0.5
         const unique = countUniqueSeconds(vid, lastTimeRef.current, end)
@@ -120,6 +165,7 @@ export default function useYouTubePlayer() {
     lastStateRef.current = -1
     logsRef.current = []
     readyRef.current = false
+    hiddenRef.current = false
     setTotalWatched(baseWatchedRef.current)
     setTotalSkipped(0)
     setSkipCount(0)

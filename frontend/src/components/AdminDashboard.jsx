@@ -37,7 +37,11 @@ export default function AdminDashboard({ user, onSignOut }) {
     fetch('/api/admin/rewards').then(r => r.json()).then(setRewards).catch(() => {})
   }
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => {
+    loadAll()
+    const interval = setInterval(loadAll, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   /* ───── User CRUD ───── */
 
