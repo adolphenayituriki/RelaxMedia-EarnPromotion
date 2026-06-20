@@ -269,6 +269,16 @@ header p {
   margin-top: 6px;
 }
 
+.earnings-login-prompt {
+  opacity: 0.6;
+}
+
+.earnings-login-msg {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 8px;
+}
+
 .stats-section {
   background: #1a1a1a;
   border-radius: 12px;

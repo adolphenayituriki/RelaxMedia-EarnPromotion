@@ -46,20 +46,29 @@ export default function StatsPanel({ duration, totalWatched, totalSkipped, skipC
     <div className="stats-section">
       <h2>Watch Statistics</h2>
 
-      <div className="earnings-box">
-        <span className="earnings-label">EARNED</span>
-        <span className="earnings-amount">{earned.toFixed(2)}</span>
-        <span className="earnings-unit">RFW</span>
-        <div className="earnings-tier-row">
-          <span className={`earnings-tier-badge ${tier.label.toLowerCase()}`}>{tier.label}</span>
-          <span className="earnings-rate">{tier.rate} RFW/h</span>
+      {user ? (
+        <div className="earnings-box">
+          <span className="earnings-label">EARNED</span>
+          <span className="earnings-amount">{earned.toFixed(2)}</span>
+          <span className="earnings-unit">RFW</span>
+          <div className="earnings-tier-row">
+            <span className={`earnings-tier-badge ${tier.label.toLowerCase()}`}>{tier.label}</span>
+            <span className="earnings-rate">{tier.rate} RFW/h</span>
+          </div>
+          {nextTier && (
+            <span className="earnings-next">
+              {fmtHours((nextTier.minHours - watchedHours) * 3600)} to reach {nextTier.label} ({nextTier.rate} RFW/h)
+            </span>
+          )}
         </div>
-        {nextTier && (
-          <span className="earnings-next">
-            {fmtHours((nextTier.minHours - watchedHours) * 3600)} to reach {nextTier.label} ({nextTier.rate} RFW/h)
-          </span>
-        )}
-      </div>
+      ) : (
+        <div className="earnings-box earnings-login-prompt">
+          <span className="earnings-label">EARNED</span>
+          <span className="earnings-amount">0.00</span>
+          <span className="earnings-unit">RFW</span>
+          <p className="earnings-login-msg">Sign in to start earning rewards</p>
+        </div>
+      )}
 
       {user && withdrawInfo && (
         <div className="withdraw-summary">
