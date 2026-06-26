@@ -1,8 +1,6 @@
 import { Router } from 'express'
-import { XMLParser } from 'fast-xml-parser'
 
 const router = Router()
-const parser = new XMLParser()
 
 /**
  * @openapi
@@ -48,19 +46,27 @@ router.get('/:id', async (req, res) => {
     if (!r.ok) return res.status(500).json({ error: 'Failed to fetch playlist feed' })
 
     const xml = await r.text()
-    const json = parser.parse(xml)
-    const entries = json.feed?.entry
 
-    if (!entries) return res.status(500).json({ error: 'No videos found in playlist' })
+    const videos = []
+    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
+    let entryMatch
 
-    const raw = Array.isArray(entries) ? entries : [entries]
+    while ((entryMatch = entryRegex.exec(xml)) !== null) {
+      const block = entryMatch[1]
+      const idMatch = block.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)
+      const titleMatch = block.match(/<title>([^<]*)<\/title>/)
+      const thumbMatch = block.match(/<media:thumbnail[^>]*url="([^"]+)"/)
+      const id = idMatch?.[1] || ''
+      if (!id) continue
+      videos.push({
+        id,
+        title: titleMatch?.[1] || 'Unknown',
+        thumbnail: thumbMatch?.[1] || `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+        duration: 0,
+      })
+    }
 
-    const videos = raw.map((entry) => ({
-      id: entry['yt:videoId'] || '',
-      title: entry.title || 'Unknown',
-      thumbnail: entry['media:group']?.['media:thumbnail']?.['@_url'] || `https://img.youtube.com/vi/${entry['yt:videoId']}/hqdefault.jpg`,
-      duration: 0,
-    })).filter(v => v.id)
+    if (videos.length === 0) return res.status(500).json({ error: 'No videos found in playlist' })
 
     res.json({ playlistId: req.params.id, total: videos.length, videos })
   } catch (err) {
