@@ -93,49 +93,7 @@ app.get('/api/video/:id', async (req, res) => {
   }
 })
 
-app.get('/api/playlist/:id', async (req, res) => {
-  try {
-    const r = await fetch(`https://www.youtube.com/playlist?list=${req.params.id}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-    })
-    const html = await r.text()
-    const match = html.match(/ytInitialData\s*=\s*({.+?});\s*<\/script>/)
-    if (!match) return res.status(500).json({ error: 'Could not parse playlist data' })
 
-    const data = JSON.parse(match[1])
-    const contents = data?.contents?.twoColumnBrowseResultsRenderer?.tabs?.[0]?.tabRenderer?.content?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents?.[0]?.playlistVideoListRenderer?.contents || []
-
-    const videos = contents
-      .map(item => {
-        const vid = item?.playlistVideoRenderer
-        if (!vid) return null
-        function parsePlaylistDuration(vid) {
-          if (vid.lengthSeconds) return parseInt(vid.lengthSeconds) || 0
-          const text = vid.lengthText?.simpleText || ''
-          const parts = text.split(':').map(Number)
-          if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
-          if (parts.length === 2) return parts[0] * 60 + parts[1]
-          return parseInt(parts[0]) || 0
-        }
-        return {
-          id: vid.videoId,
-          title: vid.title?.runs?.[0]?.text || 'Unknown',
-          duration: parsePlaylistDuration(vid),
-          thumbnail: `https://img.youtube.com/vi/${vid.videoId}/hqdefault.jpg`,
-        }
-      })
-      .filter(Boolean)
-
-    if (videos.length === 0) return res.status(500).json({ error: 'No videos found in playlist' })
-
-    res.json({ id: req.params.id, videos })
-  } catch (err) {
-    res.status(500).json({ error: err.message })
-  }
-})
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`)

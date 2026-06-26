@@ -1,13 +1,15 @@
 import { Router } from 'express'
+import { XMLParser } from 'fast-xml-parser'
 
 const router = Router()
+const parser = new XMLParser()
 
 /**
  * @openapi
  * /api/playlist/{id}:
  *   get:
  *     tags: [Playlist]
- *     summary: Scrape YouTube playlist by ID
+ *     summary: Fetch YouTube playlist videos via RSS feed
  *     parameters:
  *       - in: path
  *         name: id
@@ -38,34 +40,27 @@ const router = Router()
  *                       thumbnail:
  *                         type: string
  *                       duration:
- *                         type: string
+ *                         type: number
  */
 router.get('/:id', async (req, res) => {
   try {
-    const r = await fetch(`https://www.youtube.com/playlist?list=${req.params.id}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-    })
-    const html = await r.text()
-    const match = html.match(/ytInitialData\s*=\s*({.+?});\s*<\/script>/)
-    if (!match) return res.status(500).json({ error: 'Could not parse playlist data' })
+    const r = await fetch(`https://www.youtube.com/feeds/videos.xml?playlist_id=${req.params.id}`)
+    if (!r.ok) return res.status(500).json({ error: 'Failed to fetch playlist feed' })
 
-    const data = JSON.parse(match[1])
-    const contents = data?.contents?.twoColumnBrowseResultsRenderer?.tabs?.[0]?.tabRenderer?.content?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents?.[0]?.playlistVideoListRenderer?.contents
+    const xml = await r.text()
+    const json = parser.parse(xml)
+    const entries = json.feed?.entry
 
-    if (!contents) return res.status(500).json({ error: 'Unexpected playlist structure' })
+    if (!entries) return res.status(500).json({ error: 'No videos found in playlist' })
 
-    const videos = contents.map((c) => {
-      const v = c.playlistVideoRenderer || {}
-      return {
-        id: v.videoId || '',
-        title: v.title?.runs?.[0]?.text || 'Unknown',
-        thumbnail: v.thumbnail?.thumbnails?.[0]?.url || '',
-        duration: (() => { const s = v.lengthSeconds; if (s) return parseInt(s) || 0; const t = v.lengthText?.simpleText || ''; const p = t.split(':').map(Number); return p.length === 3 ? p[0]*3600+p[1]*60+p[2] : p.length === 2 ? p[0]*60+p[1] : parseInt(p[0]) || 0 })(),
-      }
-    }).filter(v => v.id)
+    const raw = Array.isArray(entries) ? entries : [entries]
+
+    const videos = raw.map((entry) => ({
+      id: entry['yt:videoId'] || '',
+      title: entry.title || 'Unknown',
+      thumbnail: entry['media:group']?.['media:thumbnail']?.['@_url'] || `https://img.youtube.com/vi/${entry['yt:videoId']}/hqdefault.jpg`,
+      duration: 0,
+    })).filter(v => v.id)
 
     res.json({ playlistId: req.params.id, total: videos.length, videos })
   } catch (err) {
