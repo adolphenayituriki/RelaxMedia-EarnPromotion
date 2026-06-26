@@ -1,6 +1,6 @@
 const TIERS = [
-  { minHours: 0, rate: 65, label: 'Starter', color: '#aaa', bg: '#333' },
-  { minHours: 5, rate: 80, label: 'Bronze', color: '#ffa726', bg: '#5d3a1a' },
+  { minHours: 0, rate: 100, label: 'Starter', color: '#aaa', bg: '#333' },
+  { minHours: 5, rate: 100, label: 'Bronze', color: '#ffa726', bg: '#5d3a1a' },
   { minHours: 12, rate: 100, label: 'Silver', color: '#80d8ff', bg: '#1a2a3a' },
 ]
 

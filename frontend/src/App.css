@@ -48,11 +48,12 @@ header h1 {
   overflow-y: auto;
 }
 
-.side-col::-webkit-scrollbar {
+*::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
-.side-col::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   background: #444;
   border-radius: 3px;
 }
@@ -61,6 +62,7 @@ header h1 {
   background: #1a1a1a;
   border-radius: 12px;
   padding: 16px;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
 .yt-card {
@@ -339,6 +341,7 @@ header h1 {
   background: #1a1a1a;
   border-radius: 12px;
   padding: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
 .stats-section h2 {
@@ -449,6 +452,7 @@ header h1 {
   background: #1a1a1a;
   border-radius: 12px;
   padding: 16px;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
 .sidebar h3 {

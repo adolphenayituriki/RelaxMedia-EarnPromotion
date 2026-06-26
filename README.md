@@ -61,7 +61,7 @@ A full-stack web application that rewards users for watching YouTube videos. Use
 | Unique Second Tracking | Only counts unique seconds to prevent replay abuse |
 | Skip Detection | Detects fast-forwarding/scrubbing and subtracts skipped time |
 | Cumulative Earnings | Watch time persists across sessions |
-| Tiered Earning Rates | Starter (65 RFW/hr), Bronze (80 RFW/hr), Silver (100 RFW/hr) |
+| Tiered Earning Rates | Starter (100 RFW/hr), Bronze (100 RFW/hr), Silver (100 RFW/hr) |
 | Email Verification | 6-digit code sent via Gmail SMTP |
 | First-to-Watch Rewards | +2.5 RFW bonus for being first to like/subscribe on a video |
 | Comments | Users can comment on videos |
@@ -141,8 +141,8 @@ The frontend dev server proxies `/api/*` requests to `http://localhost:3001`.
 
 | Tier | Min Hours | Rate (RFW/hr) |
 |------|-----------|---------------|
-| Starter | 0 | 65 |
-| Bronze | 5 | 80 |
+| Starter | 0 | 100 |
+| Bronze | 5 | 100 |
 | Silver | 12 | 100 |
 
 Earnings = `(total watch seconds / 3600) × current tier rate`

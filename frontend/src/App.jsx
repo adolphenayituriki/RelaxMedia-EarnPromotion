@@ -11,19 +11,7 @@ import useYouTubePlayer from './hooks/useYouTubePlayer.js'
 import useAuth from './hooks/useAuth.js'
 import './App.css'
 
-const PLAYLIST_ID = 'PLIg7BzY08KX1Ld4RKd2qykQgFTZY0E830'
-
-const EXTRA_VIDEOS = [
-  { id: '5MzBxuUd7Qw' },
-  { id: '1VPNcgxysXc' },
-  { id: 'jazpviLhYBw' },
-  { id: '6bBoRwY0gmw' },
-  { id: 'FC8ZEahGiUI' },
-  { id: 'uueuSTVdk_c' },
-  { id: 'Rn7tjBOG1M4' },
-  { id: 'vXzbJ82EmpQ' },
-  { id: 'TV1lhGEhe90' },
-]
+const PLAYLIST_ID = 'PLIg7BzY08KX3LXB6_u7XoLuO5rijKVcoz'
 
 export default function App() {
   const { user, loading: authLoading, error: authError, signIn, signUp, signOut, setAuthUser, pendingVerification, completeVerification } = useAuth()
@@ -39,40 +27,15 @@ export default function App() {
   const [videos, setVideos] = useState([])
 
   useEffect(() => {
-    const seen = new Set()
-
-    Promise.all([
-      fetch(`/api/playlist/${PLAYLIST_ID}`).then(r => r.json()).catch(() => ({ videos: [] })),
-      ...EXTRA_VIDEOS.map(v =>
-        fetch(`/api/video/${v.id}`).then(r => r.json()).catch(() => ({}))
-      ),
-    ]).then(([playlist, ...extraResults]) => {
-      const merged = []
-
-      const playlistVids = playlist.videos || []
-      playlistVids.forEach(v => {
-        if (!seen.has(v.id)) {
-          seen.add(v.id)
-          merged.push(v)
-        }
+    fetch(`/api/playlist/${PLAYLIST_ID}`)
+      .then(r => r.json())
+      .then(data => {
+        const videos = data.videos || []
+        setVideos(videos)
+        hook.setPlaylistVideos(videos)
+        hook.loadPlaylist(PLAYLIST_ID, videos)
       })
-
-      EXTRA_VIDEOS.forEach((v, i) => {
-        if (!seen.has(v.id)) {
-          seen.add(v.id)
-          const info = extraResults[i]
-          merged.push({
-            ...v,
-            title: info?.title || `Video ${v.id}`,
-            duration: parseInt(info?.duration) || 0,
-          })
-        }
-      })
-
-      setVideos(merged)
-      hook.setPlaylistVideos(merged)
-      hook.loadPlaylist(PLAYLIST_ID, merged)
-    })
+      .catch(() => {})
   }, [hook.setPlaylistVideos, hook.loadPlaylist])
 
   const fetchWatched = useCallback(async (userId) => {
@@ -124,8 +87,8 @@ export default function App() {
   const unwatchedCount = videos.filter(v => !watchedMap[v.id]).length
 
   const TIERS = [
-    { minHours: 0, rate: 65, label: 'Starter' },
-    { minHours: 5, rate: 80, label: 'Bronze' },
+    { minHours: 0, rate: 100, label: 'Starter' },
+    { minHours: 5, rate: 100, label: 'Bronze' },
     { minHours: 12, rate: 100, label: 'Silver' },
   ]
   const watchedHours = hook.totalWatched / 3600

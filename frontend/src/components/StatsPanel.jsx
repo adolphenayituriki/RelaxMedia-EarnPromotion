@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
 const TIERS = [
-  { minHours: 0, rate: 65, label: 'Starter' },
-  { minHours: 5, rate: 80, label: 'Bronze' },
+  { minHours: 0, rate: 100, label: 'Starter' },
+  { minHours: 5, rate: 100, label: 'Bronze' },
   { minHours: 12, rate: 100, label: 'Silver' },
 ]
 

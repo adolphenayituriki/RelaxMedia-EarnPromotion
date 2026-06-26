@@ -4,8 +4,8 @@ export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'www.nayituriki.com@gmail.
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Adolphe@078'
 
 export const TIERS = [
-  { minHours: 0, rate: 65, label: 'Starter' },
-  { minHours: 5, rate: 80, label: 'Bronze' },
+  { minHours: 0, rate: 100, label: 'Starter' },
+  { minHours: 5, rate: 100, label: 'Bronze' },
   { minHours: 12, rate: 100, label: 'Silver' },
 ]
 
