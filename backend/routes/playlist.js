@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
   try {
     const r = await fetch(`https://www.youtube.com/playlist?list=${req.params.id}`)
     const html = await r.text()
-    const match = html.match(/window\.ytInitialData\s*=\s*({.+?});\s*<\/script>/)
+    const match = html.match(/ytInitialData\s*=\s*({.+?});\s*<\/script>/)
     if (!match) return res.status(500).json({ error: 'Could not parse playlist data' })
 
     const data = JSON.parse(match[1])
@@ -58,7 +58,7 @@ router.get('/:id', async (req, res) => {
         id: v.videoId || '',
         title: v.title?.runs?.[0]?.text || 'Unknown',
         thumbnail: v.thumbnail?.thumbnails?.[0]?.url || '',
-        duration: v.lengthSeconds || v.lengthText?.simpleText || '',
+        duration: (() => { const s = v.lengthSeconds; if (s) return parseInt(s) || 0; const t = v.lengthText?.simpleText || ''; const p = t.split(':').map(Number); return p.length === 3 ? p[0]*3600+p[1]*60+p[2] : p.length === 2 ? p[0]*60+p[1] : parseInt(p[0]) || 0 })(),
       }
     }).filter(v => v.id)
 
