@@ -71,7 +71,12 @@ app.get('/api/watch', (req, res) => {
 
 app.get('/api/video/:id', async (req, res) => {
   try {
-    const r = await fetch(`https://www.youtube.com/watch?v=${req.params.id}`)
+    const r = await fetch(`https://www.youtube.com/watch?v=${req.params.id}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    })
     const html = await r.text()
     const match = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});\s*<\/script>/)
     if (!match) return res.status(500).json({ error: 'Could not parse video data' })
@@ -90,7 +95,12 @@ app.get('/api/video/:id', async (req, res) => {
 
 app.get('/api/playlist/:id', async (req, res) => {
   try {
-    const r = await fetch(`https://www.youtube.com/playlist?list=${req.params.id}`)
+    const r = await fetch(`https://www.youtube.com/playlist?list=${req.params.id}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    })
     const html = await r.text()
     const match = html.match(/ytInitialData\s*=\s*({.+?});\s*<\/script>/)
     if (!match) return res.status(500).json({ error: 'Could not parse playlist data' })
