@@ -79,11 +79,27 @@ router.get('/:id', async (req, res) => {
             if (!id || seen.has(id)) continue
             seen.add(id)
             const title = vm?.metadata?.lockupMetadataViewModel?.title?.content || vm?.title || 'Unknown'
+            let duration = 0
+            try {
+              const overlays = vm?.contentImage?.thumbnailViewModel?.overlays
+              if (overlays?.[0]?.thumbnailBottomOverlayViewModel?.badges) {
+                for (const badge of overlays[0].thumbnailBottomOverlayViewModel.badges) {
+                  const text = badge?.thumbnailBadgeViewModel?.text
+                  if (text) {
+                    const parts = text.split(':').map(Number)
+                    if (parts.length === 3) duration = parts[0] * 3600 + parts[1] * 60 + parts[2]
+                    else if (parts.length === 2) duration = parts[0] * 60 + parts[1]
+                    else if (parts.length === 1) duration = parts[0]
+                    break
+                  }
+                }
+              }
+            } catch {}
             videos.push({
               id,
               title,
               thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
-              duration: 0,
+              duration,
             })
           }
         }
