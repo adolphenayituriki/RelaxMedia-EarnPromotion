@@ -11,7 +11,7 @@ import useYouTubePlayer from './hooks/useYouTubePlayer.js'
 import useAuth from './hooks/useAuth.js'
 import './App.css'
 
-const PLAYLIST_ID = 'PLIg7BzY08KX3LXB6_u7XoLuO5rijKVcoz'
+const PLAYLIST_ID = 'PLIg7BzY08KX0w83WPW6GPZJwxTcKhK4ya'
 
 export default function App() {
   const { user, loading: authLoading, error: authError, signIn, signUp, signOut, setAuthUser, pendingVerification, completeVerification } = useAuth()
